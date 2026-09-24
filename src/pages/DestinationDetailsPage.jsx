@@ -189,6 +189,7 @@ export function DestinationDetailsPage() {
                   error={attractions.error}
                   onRetry={attractions.retry}
                   filter={placeFilter}
+                  destinationId={destinationId}
                 />
               ) : null}
 
@@ -200,6 +201,7 @@ export function DestinationDetailsPage() {
                   status={restaurants.status}
                   error={restaurants.error}
                   onRetry={restaurants.retry}
+                  destinationId={destinationId}
                 />
               ) : null}
 
@@ -213,6 +215,7 @@ export function DestinationDetailsPage() {
                   status={hotels.status}
                   error={hotels.error}
                   onRetry={hotels.retry}
+                  destinationId={destinationId}
                 />
               ) : null}
             </div>

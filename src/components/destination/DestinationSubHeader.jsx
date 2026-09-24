@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
+import { fromDestination } from '../../utils/savedPlaces.js'
 import {
   IconBookmark,
   IconCompass,
@@ -31,7 +32,7 @@ export function DestinationSubHeader({ destination }) {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => toggleSaved(destination.id)}
+            onClick={() => toggleSaved(fromDestination(destination))}
             className={cn(
               'inline-flex items-center gap-1 rounded-full px-4 py-1 text-[13px] font-semibold tracking-[0.26px] shadow-sm transition',
               saved

@@ -12,6 +12,7 @@ import {
   mapDay,
   mapTrip,
   normalizeActivity,
+  normalizeExpense,
   sortActivities,
   updateTripWithBasics,
 } from '../utils/tripHelpers.js'
@@ -186,6 +187,48 @@ function reducer(state, action) {
       )
     }
 
+    case 'addExpense': {
+      return persist(
+        mapTrip(state, action.tripId, (trip) => ({
+          ...trip,
+          expenses: [
+            ...(trip.expenses || []),
+            normalizeExpense(action.expense, trip.budget?.currency),
+          ],
+          updatedAt: new Date().toISOString(),
+        })),
+      )
+    }
+
+    case 'updateExpense': {
+      return persist(
+        mapTrip(state, action.tripId, (trip) => ({
+          ...trip,
+          expenses: (trip.expenses || []).map((expense) =>
+            expense.id === action.expenseId
+              ? normalizeExpense(
+                  { ...expense, ...action.patch, id: expense.id },
+                  trip.budget?.currency,
+                )
+              : expense,
+          ),
+          updatedAt: new Date().toISOString(),
+        })),
+      )
+    }
+
+    case 'deleteExpense': {
+      return persist(
+        mapTrip(state, action.tripId, (trip) => ({
+          ...trip,
+          expenses: (trip.expenses || []).filter(
+            (expense) => expense.id !== action.expenseId,
+          ),
+          updatedAt: new Date().toISOString(),
+        })),
+      )
+    }
+
     default:
       return state
   }
@@ -233,6 +276,12 @@ export function TripsProvider({ children }) {
         activityId,
         toIndex,
       }),
+    addExpense: (tripId, expense) =>
+      dispatch({ type: 'addExpense', tripId, expense }),
+    updateExpense: (tripId, expenseId, patch) =>
+      dispatch({ type: 'updateExpense', tripId, expenseId, patch }),
+    deleteExpense: (tripId, expenseId) =>
+      dispatch({ type: 'deleteExpense', tripId, expenseId }),
     previewEmpty: () => {
       clearTripsForPreview()
       dispatch({ type: 'replace', trips: [] })

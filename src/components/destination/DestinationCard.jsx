@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
+import { fromDestination } from '../../utils/savedPlaces.js'
 import { IconArrowRight, IconBookmark, IconStar } from '../common/Icons.jsx'
 
 export function DestinationCard({ destination, layout = 'grid' }) {
@@ -55,7 +56,7 @@ export function DestinationCard({ destination, layout = 'grid' }) {
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
-            toggleSaved(destination.id)
+            toggleSaved(fromDestination(destination))
           }}
           className={cn(
             'absolute right-3 top-3 flex size-8 items-center justify-center rounded-full shadow-sm backdrop-blur-[6px] transition',

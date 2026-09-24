@@ -2,9 +2,10 @@ import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.js
 import { IconStar } from '../common/Icons.jsx'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
+import { fromRestaurant } from '../../utils/savedPlaces.js'
 import { IconBookmark } from '../common/Icons.jsx'
 
-export function RestaurantCard({ restaurant }) {
+export function RestaurantCard({ restaurant, destinationId }) {
   const { isSaved, toggleSaved } = useSavedPlaces()
   const saved = isSaved(restaurant.id)
 
@@ -42,7 +43,9 @@ export function RestaurantCard({ restaurant }) {
             <button
               type="button"
               aria-label={saved ? 'Unsave restaurant' : 'Save restaurant'}
-              onClick={() => toggleSaved(restaurant.id)}
+              onClick={() =>
+                toggleSaved(fromRestaurant(restaurant, destinationId))
+              }
               className={cn(
                 'rounded-full p-1',
                 saved ? 'text-rw-accent' : 'text-rw-muted',
@@ -71,6 +74,7 @@ export function RestaurantsSection({
   status,
   error,
   onRetry,
+  destinationId,
 }) {
   return (
     <section id={id} className="scroll-mt-28 space-y-4">
@@ -126,7 +130,11 @@ export function RestaurantsSection({
       {status === 'success' ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {items.map((restaurant) => (
-            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+            <RestaurantCard
+              key={restaurant.id}
+              restaurant={restaurant}
+              destinationId={destinationId}
+            />
           ))}
         </div>
       ) : null}

@@ -30,8 +30,16 @@ function day(id, date, activities, title) {
   return { id, date, title: title || null, activities }
 }
 
-function expense(id, title, amount, category, date) {
-  return { id, title, amount, category, date }
+function expense(id, description, amount, category, date, notes = '') {
+  return {
+    id,
+    description,
+    amount,
+    currency: 'USD',
+    category,
+    date,
+    notes,
+  }
 }
 
 export const TRIP_FILTERS = [
@@ -285,9 +293,9 @@ export const SEED_TRIPS = [
       ], 'Wrap & Depart'),
     ],
     expenses: [
-      expense('e1', 'Flights', 1200, 'transport', '2024-09-01'),
-      expense('e2', 'Hotels deposit', 800, 'lodging', '2024-09-10'),
-      expense('e3', 'Rail pass', 280, 'transport', '2024-09-15'),
+      expense('e1', 'Flights', 1200, 'transportation', '2024-09-01'),
+      expense('e2', 'Hotels deposit', 800, 'accommodation', '2024-09-10'),
+      expense('e3', 'Rail pass', 280, 'transportation', '2024-09-15'),
       expense('e4', 'Food float', 170, 'food', '2024-10-01'),
     ],
   },
@@ -333,8 +341,8 @@ export const SEED_TRIPS = [
       ]),
     ],
     expenses: [
-      expense('e1', 'Flight holds', 900, 'transport', '2025-03-01'),
-      expense('e2', 'Villa deposit', 1100, 'lodging', '2025-03-12'),
+      expense('e1', 'Flight holds', 900, 'transportation', '2025-03-01'),
+      expense('e2', 'Villa deposit', 1100, 'accommodation', '2025-03-12'),
     ],
   },
   {
@@ -399,9 +407,9 @@ export const SEED_TRIPS = [
       ]),
     ],
     expenses: [
-      expense('e1', 'Flights', 780, 'transport', '2024-09-20'),
-      expense('e2', 'Lodge', 620, 'lodging', '2024-09-22'),
-      expense('e3', 'Car', 240, 'transport', '2024-09-25'),
+      expense('e1', 'Flights', 780, 'transportation', '2024-09-20'),
+      expense('e2', 'Lodge', 620, 'accommodation', '2024-09-22'),
+      expense('e3', 'Car', 240, 'transportation', '2024-09-25'),
     ],
   },
   {
@@ -476,8 +484,8 @@ export const SEED_TRIPS = [
       ]),
     ],
     expenses: [
-      expense('e1', 'Flights', 620, 'transport', '2024-03-01'),
-      expense('e2', 'Apartment', 480, 'lodging', '2024-03-05'),
+      expense('e1', 'Flights', 620, 'transportation', '2024-03-01'),
+      expense('e2', 'Apartment', 480, 'accommodation', '2024-03-05'),
       expense('e3', 'Food & transit', 510, 'food', '2024-05-07'),
       expense('e4', 'Sintra tickets', 110, 'activities', '2024-05-04'),
     ],

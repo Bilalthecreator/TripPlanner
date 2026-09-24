@@ -172,3 +172,45 @@ export const ACTIVITY_CATEGORIES = [
   'Transit',
   'Relaxation',
 ]
+
+export const EXPENSE_CATEGORIES = [
+  { id: 'accommodation', label: 'Accommodation' },
+  { id: 'food', label: 'Food' },
+  { id: 'transportation', label: 'Transportation' },
+  { id: 'activities', label: 'Activities' },
+  { id: 'shopping', label: 'Shopping' },
+  { id: 'miscellaneous', label: 'Miscellaneous' },
+]
+
+const CATEGORY_ALIASES = {
+  lodging: 'accommodation',
+  transport: 'transportation',
+  transit: 'transportation',
+  misc: 'miscellaneous',
+  other: 'miscellaneous',
+}
+
+export function normalizeExpenseCategory(value) {
+  const raw = String(value || '')
+    .trim()
+    .toLowerCase()
+  if (!raw) return 'miscellaneous'
+  const mapped = CATEGORY_ALIASES[raw] || raw
+  return EXPENSE_CATEGORIES.some((c) => c.id === mapped)
+    ? mapped
+    : 'miscellaneous'
+}
+
+export function normalizeExpense(input = {}, fallbackCurrency = 'USD') {
+  const amount = Number(input.amount)
+  return {
+    id: input.id || createId('exp'),
+    description: String(input.description || input.title || '').trim(),
+    amount: Number.isFinite(amount) ? Math.max(0, amount) : 0,
+    currency: String(input.currency || fallbackCurrency || 'USD').toUpperCase(),
+    category: normalizeExpenseCategory(input.category),
+    date: input.date || toISODate(new Date()),
+    notes: String(input.notes || '').trim(),
+  }
+}
+

@@ -1,9 +1,10 @@
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
+import { fromHotel } from '../../utils/savedPlaces.js'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
 import { IconBookmark, IconStar } from '../common/Icons.jsx'
 
-export function HotelCard({ hotel }) {
+export function HotelCard({ hotel, destinationId }) {
   const { isSaved, toggleSaved } = useSavedPlaces()
   const saved = isSaved(hotel.id)
 
@@ -14,7 +15,7 @@ export function HotelCard({ hotel }) {
         <button
           type="button"
           aria-label={saved ? 'Unsave stay' : 'Save stay'}
-          onClick={() => toggleSaved(hotel.id)}
+          onClick={() => toggleSaved(fromHotel(hotel, destinationId))}
           className={cn(
             'absolute right-2 top-2 flex size-8 items-center justify-center rounded-full backdrop-blur-[6px]',
             saved ? 'bg-rw-accent text-white' : 'bg-white/90 text-rw-ink',
@@ -66,6 +67,7 @@ export function HotelsSection({
   status,
   error,
   onRetry,
+  destinationId,
 }) {
   return (
     <section id={id} className="scroll-mt-28 space-y-4">
@@ -121,7 +123,11 @@ export function HotelsSection({
       {status === 'success' ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {items.map((hotel) => (
-            <HotelCard key={hotel.id} hotel={hotel} />
+            <HotelCard
+              key={hotel.id}
+              hotel={hotel}
+              destinationId={destinationId}
+            />
           ))}
         </div>
       ) : null}

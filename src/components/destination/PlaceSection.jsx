@@ -1,9 +1,10 @@
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
+import { fromAttraction } from '../../utils/savedPlaces.js'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
 import { IconClock, IconPlus, IconStar } from '../common/Icons.jsx'
 
-export function PlaceCard({ place }) {
+export function PlaceCard({ place, destinationId }) {
   const { isSaved, toggleSaved } = useSavedPlaces()
   const saved = isSaved(place.id)
 
@@ -46,7 +47,7 @@ export function PlaceCard({ place }) {
           <p className="text-[11px] font-bold tracking-[0.55px] text-rw-muted">{place.note}</p>
           <button
             type="button"
-            onClick={() => toggleSaved(place.id)}
+            onClick={() => toggleSaved(fromAttraction(place, destinationId))}
             className={cn(
               'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold tracking-[0.55px]',
               saved ? 'bg-rw-accent text-white' : 'bg-[#e2e7ff] text-rw-ink dark:bg-rw-chip',
@@ -71,6 +72,7 @@ export function PlaceSection({
   error,
   onRetry,
   filter,
+  destinationId,
 }) {
   const filtered =
     filter && filter !== 'all'
@@ -136,7 +138,11 @@ export function PlaceSection({
       {status === 'success' && filtered.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((place) => (
-            <PlaceCard key={place.id} place={place} />
+            <PlaceCard
+              key={place.id}
+              place={place}
+              destinationId={destinationId}
+            />
           ))}
         </div>
       ) : null}

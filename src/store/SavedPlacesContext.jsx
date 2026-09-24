@@ -1,5 +1,10 @@
 import { useEffect, useReducer } from 'react'
 import { SavedPlacesContext } from './savedPlacesContext.js'
+import {
+  hydrateSavedPlaces,
+  normalizeSavedPlace,
+  resolveSavedPlaceById,
+} from '../utils/savedPlaces.js'
 
 const STORAGE_KEY = 'roamwise.savedPlaces'
 
@@ -7,41 +12,64 @@ function readInitial() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return []
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
+    return hydrateSavedPlaces(JSON.parse(raw))
   } catch {
     return []
   }
 }
 
+function toPlace(input) {
+  if (typeof input === 'string') {
+    return resolveSavedPlaceById(input)
+  }
+  return normalizeSavedPlace(input) || resolveSavedPlaceById(input?.id)
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'toggle': {
-      const exists = state.includes(action.id)
-      return exists ? state.filter((id) => id !== action.id) : [...state, action.id]
+      const place = toPlace(action.place)
+      if (!place) return state
+      const exists = state.some((item) => item.id === place.id)
+      return exists
+        ? state.filter((item) => item.id !== place.id)
+        : [...state, place]
     }
-    case 'add':
-      return state.includes(action.id) ? state : [...state, action.id]
+    case 'add': {
+      const place = toPlace(action.place)
+      if (!place) return state
+      if (state.some((item) => item.id === place.id)) return state
+      return [...state, place]
+    }
     case 'remove':
-      return state.filter((id) => id !== action.id)
+      return state.filter((item) => item.id !== action.id)
+    case 'replace':
+      return Array.isArray(action.places) ? action.places : state
     default:
       return state
   }
 }
 
 export function SavedPlacesProvider({ children }) {
-  const [savedIds, dispatch] = useReducer(reducer, [], readInitial)
+  const [savedPlaces, dispatch] = useReducer(reducer, [], readInitial)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedIds))
-  }, [savedIds])
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPlaces))
+    } catch {
+      /* ignore quota / private mode */
+    }
+  }, [savedPlaces])
 
   const value = {
-    savedIds,
-    isSaved: (id) => savedIds.includes(id),
-    toggleSaved: (id) => dispatch({ type: 'toggle', id }),
-    addSaved: (id) => dispatch({ type: 'add', id }),
+    savedPlaces,
+    savedIds: savedPlaces.map((p) => p.id),
+    isSaved: (id) => savedPlaces.some((item) => item.id === id),
+    toggleSaved: (placeOrId) => dispatch({ type: 'toggle', place: placeOrId }),
+    addSaved: (placeOrId) => dispatch({ type: 'add', place: placeOrId }),
     removeSaved: (id) => dispatch({ type: 'remove', id }),
+    replaceSaved: (places) =>
+      dispatch({ type: 'replace', places: hydrateSavedPlaces(places) }),
   }
 
   return (

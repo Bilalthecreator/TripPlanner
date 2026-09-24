@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useAsyncResource } from '../../hooks/useAsyncResource.js'
 import { discoverService } from '../../services/discoverService.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
+import { fromAttraction } from '../../utils/savedPlaces.js'
 import { EmptyState, ErrorState, SkeletonCard } from '../common/StatusBlocks.jsx'
 import {
   IconChevronLeft,
@@ -137,7 +138,7 @@ function AttractionCard({ attraction }) {
         </span>
         <button
           type="button"
-          onClick={() => toggleSaved(attraction.id)}
+          onClick={() => toggleSaved(fromAttraction(attraction))}
           className={cn(
             'inline-flex items-center gap-1 rounded-full px-4 py-1 text-[11px] font-bold tracking-[0.55px] transition',
             saved

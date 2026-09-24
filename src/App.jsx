@@ -8,6 +8,7 @@ import {
   TripWorkspacePage,
 } from './pages/TripWorkspacePage.jsx'
 import { SettingsPage } from './pages/SettingsPage.jsx'
+import { SavedPage } from './pages/SavedPage.jsx'
 import { StubPage } from './pages/placeholders.jsx'
 import { SavedPlacesProvider } from './store/SavedPlacesContext.jsx'
 import { PreferencesProvider } from './store/PreferencesContext.jsx'
@@ -45,10 +46,7 @@ export default function App() {
                   element={<StubPage title="Trip Workspace" />}
                 />
                 <Route path="/budget" element={<StubPage title="Budget" />} />
-                <Route
-                  path="/saved"
-                  element={<StubPage title="Saved Places" />}
-                />
+                <Route path="/saved" element={<SavedPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
