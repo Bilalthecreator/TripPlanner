@@ -2,6 +2,8 @@ import { Link, NavLink } from 'react-router-dom'
 import logo from '../../assets/brand/logo.png'
 import { cn } from '../../utils/cn.js'
 import { useTheme } from '../../store/useTheme.js'
+import { usePreferences } from '../../store/usePreferences.js'
+import { currencyLabel } from '../../data/preferences.js'
 import {
   IconCurrency,
   IconMoon,
@@ -20,6 +22,7 @@ const NAV = [
 
 export function AppHeader() {
   const { theme, toggleTheme } = useTheme()
+  const { currency } = usePreferences()
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-rw-divider/40 bg-rw-header shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-[12px]">
@@ -79,14 +82,14 @@ export function AppHeader() {
             >
               {theme === 'dark' ? <IconSun /> : <IconMoon />}
             </button>
-            <button
-              type="button"
-              className="inline-flex items-center gap-0.5 rounded-full px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-muted"
-              aria-label="Currency USD"
+            <Link
+              to="/settings"
+              className="inline-flex items-center gap-0.5 rounded-full px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-muted transition hover:text-rw-ink"
+              aria-label={`Currency ${currency}`}
             >
               <IconCurrency />
-              USD $
-            </button>
+              {currencyLabel(currency)}
+            </Link>
           </div>
         </div>
       </div>

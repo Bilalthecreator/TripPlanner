@@ -1,9 +1,12 @@
 import { useAsyncResource } from '../../hooks/useAsyncResource.js'
 import { discoverService } from '../../services/discoverService.js'
+import { usePreferences } from '../../store/usePreferences.js'
+import { formatTemperature } from '../../data/preferences.js'
 import { ErrorState, EmptyState, SkeletonCard } from '../common/StatusBlocks.jsx'
 import { IconLeaf, IconPin, IconRadar } from '../common/Icons.jsx'
 
 export function WeatherPreview({ destinationId = 'kyoto' }) {
+  const { temperatureUnit } = usePreferences()
   const { status, data, error, retry } = useAsyncResource(
     (signal) => discoverService.getWeather(destinationId, { signal }),
     [destinationId],
@@ -60,7 +63,7 @@ export function WeatherPreview({ destinationId = 'kyoto' }) {
         </div>
         <div className="text-right">
           <p className="font-display text-4xl font-bold tracking-[-0.72px] text-rw-ink">
-            {data.temperatureC}°C
+            {formatTemperature(data.temperatureC, temperatureUnit)}
           </p>
           <p className="text-[11px] font-bold tracking-[0.55px] text-rw-teal">
             {data.condition}

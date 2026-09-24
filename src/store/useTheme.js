@@ -1,8 +1,13 @@
-import { useContext } from 'react'
-import { ThemeContext } from './themeContext.js'
+import { usePreferences } from './usePreferences.js'
 
+/** Theme API backed by shared preferences (single source of truth). */
 export function useTheme() {
-  const ctx = useContext(ThemeContext)
-  if (!ctx) throw new Error('useTheme must be used within ThemeProvider')
-  return ctx
+  const {
+    theme,
+    setTheme,
+    toggleTheme,
+    themePreference,
+  } = usePreferences()
+
+  return { theme, setTheme, toggleTheme, themePreference }
 }

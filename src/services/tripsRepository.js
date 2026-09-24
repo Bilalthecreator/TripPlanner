@@ -2,6 +2,8 @@ import { SEED_TRIPS } from '../data/trips.js'
 
 const STORAGE_KEY = 'roamwise.trips'
 const SEEDED_FLAG = 'roamwise.trips.seeded'
+const SEED_VERSION_KEY = 'roamwise.trips.seedVersion'
+const SEED_VERSION = '2'
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value))
@@ -42,6 +44,7 @@ export function ensureTripsSeeded() {
   const seed = clone(SEED_TRIPS)
   writeRaw(seed)
   localStorage.setItem(SEEDED_FLAG, '1')
+  localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION)
   return seed
 }
 
@@ -83,5 +86,6 @@ export function restoreSeedTrips() {
   const seed = clone(SEED_TRIPS)
   writeRaw(seed)
   localStorage.setItem(SEEDED_FLAG, '1')
+  localStorage.setItem(SEED_VERSION_KEY, SEED_VERSION)
   return seed
 }

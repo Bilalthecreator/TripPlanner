@@ -1,34 +1,43 @@
 import { useEffect, useState } from 'react'
 import { ThemeContext } from './themeContext.js'
+import { usePreferences } from './usePreferences.js'
 
-const STORAGE_KEY = 'roamwise.theme'
-
-function getInitialTheme() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved === 'dark' || saved === 'light') return saved
-  } catch {
-    /* ignore */
-  }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
-}
-
+/**
+ * Compatibility provider: theme now lives in PreferencesProvider.
+ * Keeps existing useTheme() consumers working.
+ */
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(getInitialTheme)
-
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem(STORAGE_KEY, theme)
-  }, [theme])
-
-  const toggleTheme = () =>
-    setTheme((current) => (current === 'dark' ? 'light' : 'dark'))
+  const {
+    theme,
+    setTheme,
+    toggleTheme,
+    themePreference,
+  } = usePreferences()
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{ theme, setTheme, toggleTheme, themePreference }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+/** Standalone theme bootstrap when PreferencesProvider is unavailable (tests). */
+export function LegacyThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light')
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+  }, [theme])
+  return (
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        toggleTheme: () =>
+          setTheme((t) => (t === 'dark' ? 'light' : 'dark')),
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   )

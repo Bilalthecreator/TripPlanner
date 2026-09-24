@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAsyncResource } from '../hooks/useAsyncResource.js'
 import { destinationService } from '../services/destinationService.js'
+import { usePreferences } from '../store/usePreferences.js'
 import { EmptyState } from '../components/common/StatusBlocks.jsx'
 import { DestinationSubHeader } from '../components/destination/DestinationSubHeader.jsx'
 import { DestinationHero } from '../components/destination/DestinationHero.jsx'
@@ -25,11 +26,10 @@ const SECTION_IDS = {
 export function DestinationDetailsPage() {
   const { destinationId } = useParams()
   const navigate = useNavigate()
+  const { temperatureUnit } = usePreferences()
   const [activeTab, setActiveTab] = useState('overview')
   const [placeFilter, setPlaceFilter] = useState('all')
   const [trackedId, setTrackedId] = useState(destinationId)
-  // Temperature preference placeholder for future Settings sync
-  const temperatureUnit = 'C'
 
   if (trackedId !== destinationId) {
     setTrackedId(destinationId)

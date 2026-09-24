@@ -1,19 +1,20 @@
 import { useCallback, useState } from 'react'
 import { tripService } from '../services/tripService.js'
 import { useTripsList } from '../hooks/useTripsList.js'
+import { useTrips } from '../store/useTrips.js'
 import { getTripsOverviewStats } from '../utils/tripMetrics.js'
 import { TripsStats } from '../components/trips/TripsStats.jsx'
 import { TripsToolbar } from '../components/trips/TripsToolbar.jsx'
 import { TripGrid } from '../components/trips/TripGrid.jsx'
-import { loadTrips } from '../services/tripsRepository.js'
 
 export function TripsPage() {
+  const tripsApi = useTrips()
   const list = useTripsList()
   const filters = tripService.getFilters()
   const [previewingEmpty, setPreviewingEmpty] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  const allTrips = previewingEmpty ? [] : loadTrips()
+  const allTrips = previewingEmpty ? [] : tripsApi.trips
   const stats = getTripsOverviewStats(allTrips)
   const activeCount =
     list.status === 'loading' || list.status === 'idle' ? '…' : allTrips.length
@@ -28,10 +29,10 @@ export function TripsPage() {
     setBusy(true)
     try {
       if (previewingEmpty) {
-        await tripService.restoreSeed()
+        tripsApi.restoreSeed()
         setPreviewingEmpty(false)
       } else {
-        await tripService.previewEmpty()
+        tripsApi.previewEmpty()
         setPreviewingEmpty(true)
       }
       list.retry()
@@ -44,7 +45,7 @@ export function TripsPage() {
     if (busy) return
     setBusy(true)
     try {
-      await tripService.restoreSeed()
+      tripsApi.restoreSeed()
       setPreviewingEmpty(false)
       list.retry()
     } finally {
