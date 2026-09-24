@@ -63,7 +63,7 @@ export function AppHeader() {
 
         <div className="flex items-center gap-2">
           <Link
-            to="/trips"
+            to="/trips/new"
             className="relative inline-flex items-center gap-1 rounded-full bg-rw-accent px-3 py-1 text-[13px] font-semibold tracking-[0.26px] text-white shadow-[0_8px_20px_-4px_rgba(185,5,56,0.3)] sm:px-4"
           >
             <IconPlus />

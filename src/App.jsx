@@ -2,6 +2,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/layout/AppShell.jsx'
 import { HomePage } from './pages/HomePage.jsx'
 import { DestinationDetailsPage } from './pages/DestinationDetailsPage.jsx'
+import { TripsPage } from './pages/TripsPage.jsx'
+import { CreateTripStub, TripRouteStub } from './pages/TripRouteStub.jsx'
 import { StubPage } from './pages/placeholders.jsx'
 import { SavedPlacesProvider } from './store/SavedPlacesContext.jsx'
 import { ThemeProvider } from './store/ThemeContext.jsx'
@@ -18,7 +20,20 @@ export default function App() {
                 path="/destinations/:destinationId"
                 element={<DestinationDetailsPage />}
               />
-              <Route path="/trips" element={<StubPage title="Trips" />} />
+              <Route path="/trips" element={<TripsPage />} />
+              <Route path="/trips/new" element={<CreateTripStub />} />
+              <Route
+                path="/trips/:tripId"
+                element={<TripRouteStub title="Trip Workspace" />}
+              />
+              <Route
+                path="/trips/:tripId/itinerary"
+                element={<TripRouteStub title="Itinerary Builder" />}
+              />
+              <Route
+                path="/trips/:tripId/budget"
+                element={<TripRouteStub title="Trip Budget" />}
+              />
               <Route
                 path="/workspace"
                 element={<StubPage title="Trip Workspace" />}

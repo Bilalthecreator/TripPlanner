@@ -370,3 +370,51 @@ export function IconHome({ className = 'size-[14px]' }) {
     </svg>
   )
 }
+
+export function IconPlane({ className = 'size-[16px]' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M21 12l-7-1.5V6.5L15.5 4 14 3.5 11.5 6v4.2L4 12v1.5l7.5-1.2V17l-2 1.5V20l3.5-1 3.5 1v-1.5L14 17v-4.7L21 13.5V12z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function IconGlobe({ className = 'size-[16px]' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+      <path d="M4 12h16M12 4c2.5 2.8 3.8 5.5 3.8 8S14.5 17.2 12 20c-2.5-2.8-3.8-5.5-3.8-8S9.5 6.8 12 4z" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+export function IconBook({ className = 'size-[16px]' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5V5.5z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M5 18.5A2.5 2.5 0 0 1 7.5 16H19" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  )
+}
+
+export function IconPencil({ className = 'size-[14px]' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M14 5l5 5M4 20l1.5-5.5L16 4l4 4L9.5 18.5 4 20z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function IconChecklist({ className = 'size-[14px]' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
