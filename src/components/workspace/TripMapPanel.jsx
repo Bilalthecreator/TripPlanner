@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAsyncResource } from '../../hooks/useAsyncResource.js'
+import { useTripDestinationLocation } from '../../hooks/useTripDestinationLocation.js'
 import { getRoute } from '../../services/geoapify/index.js'
 import { GeoapifyMap } from '../destination/GeoapifyMap.jsx'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
@@ -30,10 +31,14 @@ function collectActivityPoints(trip) {
  * Trip map enrichment — destination + activity markers + optional walking route.
  */
 export function TripMapPanel({ trip, selectedActivityId = null }) {
-  const destination = trip?.destination
+  const location = useTripDestinationLocation(trip?.destination)
+  const destination = location.destination
   const lat = Number(destination?.latitude)
   const lon = Number(destination?.longitude)
-  const hasDestination = Number.isFinite(lat) && Number.isFinite(lon)
+  const hasDestination =
+    location.status === 'ready' &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lon)
   const [showRoute, setShowRoute] = useState(true)
 
   const activityPoints = collectActivityPoints(trip)
@@ -77,6 +82,24 @@ export function TripMapPanel({ trip, selectedActivityId = null }) {
     [routeKey, showRoute],
     { enabled: showRoute && routeWaypoints.length >= 2 },
   )
+
+  if (location.status === 'loading') {
+    return <SkeletonBlock className="h-[280px] w-full rounded-2xl" />
+  }
+
+  if (location.status === 'error' && activityPoints.length === 0) {
+    return (
+      <ErrorState
+        className="min-h-[280px]"
+        title="Map unavailable"
+        message={
+          location.error?.message ||
+          'Could not resolve destination coordinates for the map.'
+        }
+        onRetry={location.retry}
+      />
+    )
+  }
 
   if (!hasDestination && activityPoints.length === 0) {
     return (

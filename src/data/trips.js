@@ -2,6 +2,7 @@ import kyotoImg from '../assets/destinations/kyoto.jpg'
 import amalfiImg from '../assets/destinations/amalfi.jpg'
 import banffImg from '../assets/destinations/banff.jpg'
 import lisbonImg from '../assets/destinations/lisbon.jpg'
+import { coordsForDestinationId } from './destinationCoords.js'
 
 /**
  * Seed trip entities — single shape shared by list, workspace, itinerary, budget.
@@ -42,6 +43,16 @@ function expense(id, description, amount, category, date, notes = '') {
   }
 }
 
+function destination(id, name, country, image) {
+  return {
+    id,
+    name,
+    country,
+    image,
+    ...coordsForDestinationId(id),
+  }
+}
+
 export const TRIP_FILTERS = [
   { id: 'all', label: 'All Trips' },
   { id: 'upcoming', label: 'Upcoming' },
@@ -53,12 +64,7 @@ export const SEED_TRIPS = [
   {
     id: 'trip-japan-autumn',
     name: 'Autumn in Japan: Kyoto & Tokyo',
-    destination: {
-      id: 'kyoto',
-      name: 'Kyoto',
-      country: 'Japan',
-      image: kyotoImg,
-    },
+    destination: destination('kyoto', 'Kyoto', 'Japan', kyotoImg),
     destinations: [
       { name: 'Tokyo', country: 'Japan' },
       { name: 'Kyoto', country: 'Japan' },
@@ -302,12 +308,7 @@ export const SEED_TRIPS = [
   {
     id: 'trip-amalfi-draft',
     name: 'Amalfi Coast Escape',
-    destination: {
-      id: 'amalfi-coast',
-      name: 'Amalfi Coast',
-      country: 'Italy',
-      image: amalfiImg,
-    },
+    destination: destination('amalfi-coast', 'Amalfi Coast', 'Italy', amalfiImg),
     destinations: [
       { name: 'Positano', country: 'Italy' },
       { name: 'Amalfi', country: 'Italy' },
@@ -348,12 +349,7 @@ export const SEED_TRIPS = [
   {
     id: 'trip-banff-ready',
     name: 'Banff Alpine Weekend',
-    destination: {
-      id: 'banff',
-      name: 'Banff',
-      country: 'Canada',
-      image: banffImg,
-    },
+    destination: destination('banff', 'Banff', 'Canada', banffImg),
     destinations: [
       { name: 'Banff', country: 'Canada' },
       { name: 'Lake Louise', country: 'Canada' },
@@ -415,12 +411,7 @@ export const SEED_TRIPS = [
   {
     id: 'trip-lisbon-done',
     name: 'Lisbon & Sintra Long Weekend',
-    destination: {
-      id: 'lisbon',
-      name: 'Lisbon',
-      country: 'Portugal',
-      image: lisbonImg,
-    },
+    destination: destination('lisbon', 'Lisbon', 'Portugal', lisbonImg),
     destinations: [
       { name: 'Lisbon', country: 'Portugal' },
       { name: 'Sintra', country: 'Portugal' },

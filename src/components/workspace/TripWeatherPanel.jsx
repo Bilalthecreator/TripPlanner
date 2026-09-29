@@ -1,3 +1,4 @@
+import { useTripDestinationLocation } from '../../hooks/useTripDestinationLocation.js'
 import { useAsyncResource } from '../../hooks/useAsyncResource.js'
 import { getCurrentWeather } from '../../services/weather/index.js'
 import { usePreferences } from '../../store/usePreferences.js'
@@ -10,21 +11,42 @@ import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.js
  */
 export function TripWeatherPanel({ destination }) {
   const { temperatureUnit } = usePreferences()
-  const lat = destination?.latitude
-  const lon = destination?.longitude
+  const location = useTripDestinationLocation(destination)
+  const resolved = location.destination
+  const lat = resolved?.latitude
+  const lon = resolved?.longitude
   const enabled =
-    Number.isFinite(Number(lat)) && Number.isFinite(Number(lon))
+    location.status === 'ready' &&
+    Number.isFinite(Number(lat)) &&
+    Number.isFinite(Number(lon))
 
   const weather = useAsyncResource(
     (signal) =>
       getCurrentWeather(lat, lon, {
         signal,
-        city: [destination?.name, destination?.country].filter(Boolean).join(', '),
-        region: destination?.region || '',
+        city: [resolved?.name, resolved?.country].filter(Boolean).join(', '),
+        region: resolved?.region || '',
       }),
-    [lat, lon, destination?.name, destination?.country],
+    [lat, lon, resolved?.name, resolved?.country, resolved?.region],
     { enabled },
   )
+
+  if (location.status === 'loading') {
+    return <SkeletonBlock className="h-[140px] w-full rounded-2xl" />
+  }
+
+  if (location.status === 'error') {
+    return (
+      <ErrorState
+        title="Weather unavailable"
+        message={
+          location.error?.message ||
+          'Could not resolve destination coordinates.'
+        }
+        onRetry={location.retry}
+      />
+    )
+  }
 
   if (!enabled) {
     return (

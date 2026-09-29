@@ -82,9 +82,14 @@ export function IconBookmark({ className = 'h-[13.5px] w-[10.5px]', filled = fal
   )
 }
 
-export function IconStar({ className = 'size-[11.5px]' }) {
+export function IconStar({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg
+      className={cn('size-[11.5px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
       <path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9L12 3z" />
     </svg>
   )
@@ -287,11 +292,21 @@ export function IconShare({ className = 'h-[15px] w-[13.5px]' }) {
   )
 }
 
-export function IconCompass({ className = 'size-[14px]' }) {
+export function IconCompass({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={cn('size-[14px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
-      <path d="M14.5 9.5l-1.2 4.3-4.3 1.2 1.2-4.3 4.3-1.2z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path
+        d="M14.5 9.5l-1.2 4.3-4.3 1.2 1.2-4.3 4.3-1.2z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
@@ -375,18 +390,37 @@ export function IconMetro({ className = 'size-[17px]' }) {
   )
 }
 
-export function IconLeafSmall({ className = 'size-[12px]' }) {
+export function IconLeafSmall({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 19c8-1 13-7 14-15-7 1-13 6-14 15z" stroke="currentColor" strokeWidth="2" />
+    <svg
+      className={cn('size-[12px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M5 19c8-1 13-7 14-15-7 1-13 6-14 15z"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
     </svg>
   )
 }
 
-export function IconChart({ className = 'h-[12px] w-[16.5px]' }) {
+export function IconChart({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 19h16M7 16V9M12 16V5M17 16v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg
+      className={cn('h-[12px] w-[16.5px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 19h16M7 16V9M12 16V5M17 16v-4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
