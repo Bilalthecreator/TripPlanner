@@ -5,7 +5,7 @@ import { cn } from '../../utils/cn.js'
 
 export function DestinationGrid({
   title = 'Trending Destinations',
-  subtitle = 'Calculated from 48,000+ dynamic trip bookings this week',
+  subtitle = 'Curated destinations to start exploring',
   destinations = [],
   status,
   error,
@@ -81,7 +81,7 @@ export function DestinationGrid({
           title={isSearch ? 'No destinations found' : 'No trending destinations'}
           message={
             isSearch
-              ? 'Try another city—London, Paris, Dubai, Istanbul, Tokyo, Lahore, or New York.'
+              ? 'Try another city—London, Paris, Tokyo, Lahore, or anywhere worldwide.'
               : 'Discovery data came back empty. Refresh to try again.'
           }
           actionLabel={isSearch ? 'Clear search' : 'Retry'}

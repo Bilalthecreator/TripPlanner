@@ -15,7 +15,7 @@ export function TripSearch({
         className,
       )}
     >
-      <IconSearch className="shrink-0 text-rw-muted" />
+      <IconSearch className="text-rw-muted" />
       <input
         type="search"
         value={value}
@@ -27,7 +27,7 @@ export function TripSearch({
         aria-label="Search trips by destination or name"
       />
       <span className="shrink-0 p-1 text-rw-muted" aria-hidden="true">
-        <IconSliders />
+        <IconSliders className="text-rw-muted" />
       </span>
     </label>
   )

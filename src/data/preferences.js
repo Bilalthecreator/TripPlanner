@@ -9,6 +9,7 @@ export const CURRENCIES = [
   { id: 'JPY', symbol: '¥', label: 'JPY' },
   { id: 'GBP', symbol: '£', label: 'GBP' },
   { id: 'BRL', symbol: 'R$', label: 'BRL' },
+  { id: 'PKR', symbol: 'Rs', label: 'PKR' },
 ]
 
 export const TEMPERATURE_UNITS = [

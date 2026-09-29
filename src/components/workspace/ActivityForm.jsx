@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ACTIVITY_CATEGORIES } from '../../utils/tripHelpers.js'
 import { cn } from '../../utils/cn.js'
+import { PlaceSearchField } from './PlaceSearchField.jsx'
 
 const EMPTY = {
   title: '',
@@ -9,6 +11,11 @@ const EMPTY = {
   durationMinutes: 60,
   cost: 0,
   placeName: '',
+  placeId: null,
+  providerPlaceId: null,
+  address: '',
+  latitude: null,
+  longitude: null,
   notes: '',
   dayId: '',
   completed: false,
@@ -20,6 +27,7 @@ export function ActivityForm({
   dayLabel,
   days,
   initialValues,
+  destination,
   onClose,
   onSubmit,
 }) {
@@ -32,6 +40,7 @@ export function ActivityForm({
       dayLabel={dayLabel}
       days={days}
       initialValues={initialValues}
+      destination={destination}
       onClose={onClose}
       onSubmit={onSubmit}
     />
@@ -43,6 +52,7 @@ function ActivityFormPanel({
   dayLabel,
   days,
   initialValues,
+  destination,
   onClose,
   onSubmit,
 }) {
@@ -72,18 +82,24 @@ function ActivityFormPanel({
       durationMinutes: Number(values.durationMinutes) || 0,
       cost: Number(values.cost) || 0,
       startTime: values.startTime || null,
+      placeName: values.placeName || '',
+      placeId: values.placeId || values.providerPlaceId || null,
+      providerPlaceId: values.providerPlaceId || values.placeId || null,
+      address: values.address || '',
+      latitude: values.latitude ?? null,
+      longitude: values.longitude ?? null,
     })
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/35 p-0 sm:p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex justify-end bg-black/35 p-0 sm:p-4">
       <button
         type="button"
         className="absolute inset-0 cursor-default"
         aria-label="Close drawer"
         onClick={onClose}
       />
-      <aside className="relative flex h-full w-full max-w-md flex-col bg-rw-surface shadow-2xl sm:rounded-3xl">
+      <aside className="relative z-[1] flex h-full w-full max-w-md flex-col bg-rw-surface shadow-2xl sm:rounded-3xl">
         <div className="flex items-start justify-between gap-3 border-b border-rw-divider/50 px-5 py-4">
           <div>
             <p className="text-[11px] font-bold tracking-[0.55px] text-rw-accent uppercase">
@@ -105,7 +121,7 @@ function ActivityFormPanel({
 
         <form
           onSubmit={handleSubmit}
-          className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-4"
+          className="flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-visible px-5 py-4"
         >
           <label className="space-y-1.5">
             <span className="text-[11px] font-bold tracking-[0.55px] text-rw-muted uppercase">
@@ -200,17 +216,54 @@ function ActivityFormPanel({
             </label>
           </div>
 
-          <label className="space-y-1.5">
+          <div className="space-y-1.5">
             <span className="text-[11px] font-bold tracking-[0.55px] text-rw-muted uppercase">
               Place
             </span>
-            <input
+            <PlaceSearchField
               value={values.placeName}
-              onChange={(e) => setField('placeName', e.target.value)}
-              className={fieldClass()}
-              placeholder="Neighborhood or venue"
+              category={values.category}
+              latitude={destination?.latitude}
+              longitude={destination?.longitude}
+              fallbackQuery={[destination?.name, destination?.country]
+                .filter(Boolean)
+                .join(', ')}
+              inputClassName={fieldClass()}
+              onChange={(text, meta) => {
+                if (meta?.clearPlaceMeta) {
+                  setValues((prev) => ({
+                    ...prev,
+                    placeName: text,
+                    placeId: null,
+                    providerPlaceId: null,
+                    address: '',
+                    latitude: null,
+                    longitude: null,
+                  }))
+                } else {
+                  setField('placeName', text)
+                }
+              }}
+              onSelect={(place) => {
+                setValues((prev) => ({
+                  ...prev,
+                  placeName: place.name,
+                  placeId: place.placeId || place.id || null,
+                  providerPlaceId: place.placeId || place.id || null,
+                  address: place.address || place.location || '',
+                  latitude: place.latitude ?? null,
+                  longitude: place.longitude ?? null,
+                  title: prev.title.trim() ? prev.title : place.name,
+                }))
+              }}
             />
-          </label>
+            {values.latitude != null && values.longitude != null ? (
+              <p className="text-[11px] text-rw-teal">
+                Place mapped · {Number(values.latitude).toFixed(3)},{' '}
+                {Number(values.longitude).toFixed(3)}
+              </p>
+            ) : null}
+          </div>
 
           <label className="space-y-1.5">
             <span className="text-[11px] font-bold tracking-[0.55px] text-rw-muted uppercase">
@@ -264,7 +317,8 @@ function ActivityFormPanel({
           </div>
         </form>
       </aside>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

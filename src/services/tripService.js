@@ -1,6 +1,5 @@
 import { TRIP_FILTERS } from '../data/trips.js'
 import { delay, maybeFail, MockRequestError } from './http.js'
-import { MOCK_DELAY_MS } from './mockConfig.js'
 import {
   clearTripsForPreview,
   getTripById,
@@ -55,7 +54,7 @@ export const tripService = {
 
   async listTrips(
     { query = '', filter = 'all' } = {},
-    { signal, delayMs = MOCK_DELAY_MS } = {},
+    { signal, delayMs = 0 } = {},
   ) {
     return run(signal, delayMs, () => {
       const all = loadTrips()
@@ -73,7 +72,7 @@ export const tripService = {
     })
   },
 
-  async getTrip(tripId, { signal, delayMs = MOCK_DELAY_MS } = {}) {
+  async getTrip(tripId, { signal, delayMs = 0 } = {}) {
     return run(signal, delayMs, () => {
       const trip = getTripById(tripId)
       if (!trip) {

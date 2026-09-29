@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
 import { typeLabel } from '../../utils/savedPlaces.js'
+import { SoftImage } from '../common/SoftImage.jsx'
 import { IconBookmark, IconPin, IconStar } from '../common/Icons.jsx'
 
 const TYPE_TONE = {
@@ -15,9 +16,13 @@ export function SavedPlaceCard({ place }) {
   const navigate = useNavigate()
   const { removeSaved } = useSavedPlaces()
 
+  const imageSrc = place.imageUrl || place.image || null
+  const locationLine =
+    place.destination || place.address || place.location || ''
+
   const href =
     place.type === 'destination'
-      ? `/destinations/${place.id}`
+      ? `/destinations/${place.destinationId || place.id}`
       : place.destinationId
         ? `/destinations/${place.destinationId}`
         : '/saved'
@@ -46,21 +51,11 @@ export function SavedPlaceCard({ place }) {
       )}
     >
       <div className="relative h-48 overflow-hidden bg-rw-surface-muted">
-        {place.image ? (
-          <img
-            src={place.image}
-            alt=""
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-rw-muted">
-            No image
-          </div>
-        )}
+        <SoftImage src={imageSrc} className="h-full w-full" />
 
         <span
           className={cn(
-            'absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-[0.55px]',
+            'absolute left-3 top-3 z-[1] rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-[0.55px]',
             TYPE_TONE[place.type] || TYPE_TONE.attraction,
           )}
         >
@@ -75,7 +70,7 @@ export function SavedPlaceCard({ place }) {
             e.stopPropagation()
             removeSaved(place.id)
           }}
-          className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-rw-accent text-white shadow-sm transition hover:brightness-110"
+          className="absolute right-3 top-3 z-[1] flex size-8 items-center justify-center rounded-full bg-rw-accent text-white shadow-sm transition hover:brightness-110"
         >
           <IconBookmark filled />
         </button>
@@ -96,11 +91,17 @@ export function SavedPlaceCard({ place }) {
           ) : null}
         </div>
 
-        {place.location ? (
+        {locationLine ? (
           <p className="inline-flex items-center gap-1 text-xs text-rw-muted">
             <IconPin className="text-rw-faint" />
-            {place.location}
+            {locationLine}
           </p>
+        ) : null}
+
+        {place.address &&
+        place.address !== locationLine &&
+        place.type !== 'destination' ? (
+          <p className="line-clamp-1 text-[11px] text-rw-faint">{place.address}</p>
         ) : null}
 
         <div className="mt-1 flex flex-wrap items-center gap-2">

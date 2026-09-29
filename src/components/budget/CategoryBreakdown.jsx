@@ -4,7 +4,6 @@ import { SkeletonBlock } from '../common/StatusBlocks.jsx'
 function Donut({ segments, size = 160 }) {
   const radius = 54
   const circumference = 2 * Math.PI * radius
-  let offset = 0
 
   if (!segments.length) {
     return (
@@ -22,29 +21,38 @@ function Donut({ segments, size = 160 }) {
     )
   }
 
+  const arcs = segments.reduce((acc, segment) => {
+    const start = acc.length ? acc[acc.length - 1].end : 0
+    const length = (segment.percent / 100) * circumference
+    return [
+      ...acc,
+      {
+        id: segment.id,
+        dash: `${length} ${circumference - length}`,
+        dashoffset: -start,
+        end: start + length,
+        color: CATEGORY_COLORS[segment.id] || '#94a3b8',
+      },
+    ]
+  }, [])
+
   return (
     <svg width={size} height={size} viewBox="0 0 140 140" aria-hidden="true">
       <g transform="rotate(-90 70 70)">
-        {segments.map((segment) => {
-          const length = (segment.percent / 100) * circumference
-          const dash = `${length} ${circumference - length}`
-          const el = (
-            <circle
-              key={segment.id}
-              cx="70"
-              cy="70"
-              r={radius}
-              fill="none"
-              stroke={CATEGORY_COLORS[segment.id] || '#94a3b8'}
-              strokeWidth="18"
-              strokeDasharray={dash}
-              strokeDashoffset={-offset}
-              strokeLinecap="butt"
-            />
-          )
-          offset += length
-          return el
-        })}
+        {arcs.map((arc) => (
+          <circle
+            key={arc.id}
+            cx="70"
+            cy="70"
+            r={radius}
+            fill="none"
+            stroke={arc.color}
+            strokeWidth="18"
+            strokeDasharray={arc.dash}
+            strokeDashoffset={arc.dashoffset}
+            strokeLinecap="butt"
+          />
+        ))}
       </g>
     </svg>
   )

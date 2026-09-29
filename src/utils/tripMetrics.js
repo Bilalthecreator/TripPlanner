@@ -147,15 +147,15 @@ export function getTripProgress(trip) {
 }
 
 export function getTripSpent(trip) {
-  const expenses = Array.isArray(trip?.expenses) ? trip.expenses : []
-  if (expenses.length > 0) {
-    return expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
-  }
-
-  return getTripActivities(trip).reduce(
+  const expenseSum = (Array.isArray(trip?.expenses) ? trip.expenses : []).reduce(
+    (sum, item) => sum + (Number(item.amount) || 0),
+    0,
+  )
+  const activitySum = getTripActivities(trip).reduce(
     (sum, activity) => sum + (Number(activity.cost) || 0),
     0,
   )
+  return expenseSum + activitySum
 }
 
 export function getTripBudgetStatus(trip) {

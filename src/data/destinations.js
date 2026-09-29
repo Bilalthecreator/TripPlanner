@@ -4,9 +4,9 @@ import banffImg from '../assets/destinations/banff.jpg'
 import lisbonImg from '../assets/destinations/lisbon.jpg'
 
 /**
- * Destination catalog for Discover.
- * Image fields point at local Figma exports for design destinations;
- * additional search cities use curated Unsplash URLs (stable, not Figma temp URLs).
+ * Destination catalog for Discover legacy IDs / bookmark migration.
+ * Primary Discover grid uses Geoapify + Wikimedia (not this static list).
+ * Image fields use local assets when available; otherwise null (SoftImage fallback).
  */
 export const DESTINATIONS = [
   {
@@ -84,8 +84,7 @@ export const DESTINATIONS = [
     region: 'England',
     description:
       'Royal parks, world-class museums, riverside walks, and neighborhoods packed with food…',
-    image:
-      'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Urban', 'Culture'],
     filters: ['culture', 'foodie'],
     rating: 4.7,
@@ -102,8 +101,7 @@ export const DESTINATIONS = [
     region: 'Île-de-France',
     description:
       'Café terraces, museum corridors, riverside evenings, and neighborhoods made for wandering…',
-    image:
-      'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Romantic', 'Culture'],
     filters: ['culture', 'foodie', 'weekend'],
     rating: 4.88,
@@ -120,8 +118,7 @@ export const DESTINATIONS = [
     region: 'Dubai',
     description:
       'Futuristic skyline, desert dunes, marina evenings, and high-energy shopping districts…',
-    image:
-      'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Modern', 'Luxury'],
     filters: ['beach', 'foodie'],
     rating: 4.65,
@@ -138,8 +135,7 @@ export const DESTINATIONS = [
     region: 'Marmara',
     description:
       'Mosques, bazaars, Bosphorus ferries, and a crossroads of continents in every street…',
-    image:
-      'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Historic', 'Foodie'],
     filters: ['culture', 'budget', 'foodie'],
     rating: 4.8,
@@ -156,8 +152,7 @@ export const DESTINATIONS = [
     region: 'Kanto',
     description:
       'Neon alleys, serene shrines, Michelin density, and rail networks that feel like magic…',
-    image:
-      'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Urban', 'Foodie'],
     filters: ['culture', 'foodie'],
     rating: 4.93,
@@ -174,8 +169,7 @@ export const DESTINATIONS = [
     region: 'Punjab',
     description:
       'Mughal forts, food streets, verdant gardens, and warm hospitality in every bazaar lane…',
-    image:
-      'https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Cultural', 'Foodie'],
     filters: ['culture', 'budget', 'foodie'],
     rating: 4.72,
@@ -192,8 +186,7 @@ export const DESTINATIONS = [
     region: 'New York',
     description:
       'Skyline views, borough hopping, museum marathons, and neighborhoods that never sleep…',
-    image:
-      'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80',
+    image: null,
     tags: ['Urban', 'Nightlife'],
     filters: ['culture', 'foodie', 'weekend'],
     rating: 4.75,

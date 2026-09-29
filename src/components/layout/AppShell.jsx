@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import logo from '../../assets/brand/logo.png'
 import { cn } from '../../utils/cn.js'
 import { useTheme } from '../../store/useTheme.js'
@@ -13,16 +13,55 @@ import {
 
 const NAV = [
   { to: '/', label: 'Discover', end: true },
-  { to: '/trips', label: 'Trips' },
-  { to: '/workspace', label: 'Workspace' },
-  { to: '/budget', label: 'Budget' },
-  { to: '/saved', label: 'Saved' },
-  { to: '/settings', label: 'Settings' },
+  {
+    to: '/trips',
+    label: 'Trips',
+    end: true,
+    isActivePath: (path) => path === '/trips' || path === '/trips/new',
+  },
+  {
+    to: '/workspace',
+    label: 'Workspace',
+    end: true,
+    isActivePath: (path) =>
+      /^\/trips\/[^/]+$/.test(path) || /\/trips\/[^/]+\/itinerary$/.test(path),
+  },
+  {
+    to: '/budget',
+    label: 'Budget',
+    end: true,
+    isActivePath: (path) => /\/trips\/[^/]+\/budget$/.test(path),
+  },
+  { to: '/saved', label: 'Saved', end: true },
+  { to: '/settings', label: 'Settings', end: true },
 ]
+
+function isNavActive(item, path, routerActive) {
+  if (typeof item.isActivePath === 'function') return item.isActivePath(path)
+  return routerActive
+}
+
+function navClassName(isActive) {
+  return cn(
+    'rounded-full px-3 py-1 text-[13px] font-semibold tracking-[0.26px] transition lg:px-4',
+    isActive
+      ? 'bg-rw-accent text-white shadow-[0_4px_6px_rgba(185,5,56,0.2)]'
+      : 'text-rw-muted hover:bg-rw-surface-muted/70',
+  )
+}
+
+function mobileNavClassName(isActive) {
+  return cn(
+    'rounded-full px-3 py-1 text-[12px] font-semibold tracking-[0.26px]',
+    isActive ? 'bg-rw-accent text-white' : 'text-rw-muted',
+  )
+}
 
 export function AppHeader() {
   const { theme, toggleTheme } = useTheme()
   const { currency } = usePreferences()
+  const location = useLocation()
+  const path = location.pathname
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-rw-divider/40 bg-rw-header shadow-[0_1px_8px_rgba(0,0,0,0.04)] backdrop-blur-[12px]">
@@ -49,13 +88,11 @@ export function AppHeader() {
                 key={item.to}
                 to={item.to}
                 end={item.end}
+                aria-current={
+                  isNavActive(item, path, path === item.to) ? 'page' : undefined
+                }
                 className={({ isActive }) =>
-                  cn(
-                    'rounded-full px-3 py-1 text-[13px] font-semibold tracking-[0.26px] transition lg:px-4',
-                    isActive
-                      ? 'bg-rw-accent text-white shadow-[0_4px_6px_rgba(185,5,56,0.2)]'
-                      : 'text-rw-muted hover:bg-rw-surface-muted/70',
-                  )
+                  navClassName(isNavActive(item, path, isActive))
                 }
               >
                 {item.label}
@@ -101,11 +138,11 @@ export function AppHeader() {
               key={item.to}
               to={item.to}
               end={item.end}
+              aria-current={
+                isNavActive(item, path, path === item.to) ? 'page' : undefined
+              }
               className={({ isActive }) =>
-                cn(
-                  'rounded-full px-3 py-1 text-[12px] font-semibold tracking-[0.26px]',
-                  isActive ? 'bg-rw-accent text-white' : 'text-rw-muted',
-                )
+                mobileNavClassName(isNavActive(item, path, isActive))
               }
             >
               {item.label}

@@ -19,8 +19,8 @@ export function BudgetSummary({ summary }) {
       value: summary.totalBudgetLabel,
       hint:
         summary.totalBudget > 0
-          ? 'Trip spending cap'
-          : 'Set a budget in trip settings',
+          ? 'Trip spending cap · edit below to change'
+          : 'Set a budget cap below to track remaining',
     },
     {
       id: 'spent',

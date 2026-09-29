@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { cn } from '../../utils/cn.js'
 import { CURRENCIES } from '../../data/preferences.js'
 import { EXPENSE_CATEGORIES } from '../../utils/budgetUtils.js'
@@ -82,19 +82,6 @@ export function ExpenseForm({
         : '',
   }))
   const [errors, setErrors] = useState({})
-
-  useEffect(() => {
-    setValues({
-      ...EMPTY,
-      currency: defaultCurrency,
-      ...initialValues,
-      amount:
-        initialValues?.amount != null && initialValues.amount !== ''
-          ? String(initialValues.amount)
-          : '',
-    })
-    setErrors({})
-  }, [initialValues, defaultCurrency, mode])
 
   const setField = (key, value) => {
     setValues((current) => ({ ...current, [key]: value }))

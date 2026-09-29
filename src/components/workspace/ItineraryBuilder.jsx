@@ -219,6 +219,7 @@ export function ItineraryBuilder({ trip, tripsApi }) {
         dayLabel={`Day ${(dayIndex >= 0 ? dayIndex : 0) + 1}`}
         days={days}
         initialValues={drawer.activity}
+        destination={trip.destination}
         onClose={closeDrawer}
         onSubmit={handleSave}
       />

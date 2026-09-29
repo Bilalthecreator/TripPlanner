@@ -1,4 +1,5 @@
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
+import { SoftImage } from '../common/SoftImage.jsx'
 import { IconStar } from '../common/Icons.jsx'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
@@ -12,16 +13,22 @@ export function RestaurantCard({ restaurant, destinationId }) {
   return (
     <article className="flex gap-4 rounded-2xl bg-rw-surface p-4 shadow-sm">
       <div className="size-24 shrink-0 overflow-hidden rounded-xl bg-rw-surface-muted">
-        <img src={restaurant.image} alt="" className="h-full w-full object-cover" />
+        <SoftImage
+          src={restaurant.image}
+          className="h-full w-full"
+          imgClassName="group-hover:scale-100"
+        />
       </div>
       <div className="flex min-w-0 flex-1 flex-col justify-between">
         <div className="flex items-center justify-between gap-2">
           <span className="rounded bg-rw-warm px-1 py-0.5 text-[11px] font-semibold tracking-[0.55px] text-[#686259] dark:text-rw-muted">
-            {restaurant.cuisine}
+            {restaurant.cuisine || 'Dining'}
           </span>
-          <span className="text-[13px] font-bold tracking-[0.26px] text-rw-muted">
-            {restaurant.priceLevel}
-          </span>
+          {restaurant.priceLevel ? (
+            <span className="text-[13px] font-bold tracking-[0.26px] text-rw-muted">
+              {restaurant.priceLevel}
+            </span>
+          ) : null}
         </div>
         <h3 className="truncate font-display text-lg font-semibold tracking-[-0.18px] text-rw-ink">
           {restaurant.name}
@@ -30,15 +37,19 @@ export function RestaurantCard({ restaurant, destinationId }) {
           {restaurant.description}
         </p>
         <div className="flex items-center justify-between gap-2 pt-1">
-          <span
-            className={cn(
-              'inline-flex items-center gap-0.5 text-[11px] font-bold tracking-[0.55px]',
-              restaurant.badgeTone === 'teal' ? 'text-rw-teal' : 'text-rw-muted',
-            )}
-          >
-            <IconStar className="size-[11px]" />
-            {restaurant.badge}
-          </span>
+          {restaurant.badge ? (
+            <span
+              className={cn(
+                'inline-flex items-center gap-0.5 text-[11px] font-bold tracking-[0.55px]',
+                restaurant.badgeTone === 'teal' ? 'text-rw-teal' : 'text-rw-muted',
+              )}
+            >
+              <IconStar className="size-[11px]" />
+              {restaurant.badge}
+            </span>
+          ) : (
+            <span />
+          )}
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -57,7 +68,7 @@ export function RestaurantCard({ restaurant, destinationId }) {
               type="button"
               className="text-[11px] font-semibold tracking-[0.55px] text-rw-accent"
             >
-              {restaurant.action}
+              {restaurant.action || 'View'}
             </button>
           </div>
         </div>

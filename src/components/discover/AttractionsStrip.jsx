@@ -4,6 +4,7 @@ import { discoverService } from '../../services/discoverService.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
 import { fromAttraction } from '../../utils/savedPlaces.js'
 import { EmptyState, ErrorState, SkeletonCard } from '../common/StatusBlocks.jsx'
+import { SoftImage } from '../common/SoftImage.jsx'
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -13,11 +14,20 @@ import {
 } from '../common/Icons.jsx'
 import { cn } from '../../utils/cn.js'
 
-export function AttractionsStrip({ filter = 'all' }) {
+export function AttractionsStrip({
+  filter = 'all',
+  destinationId,
+  latitude,
+  longitude,
+}) {
   const scrollerRef = useRef(null)
   const { status, data, error, retry } = useAsyncResource(
-    (signal) => discoverService.getAttractions({ filter }, { signal }),
-    [filter],
+    (signal) =>
+      discoverService.getAttractions(
+        { filter, destinationId, latitude, longitude },
+        { signal },
+      ),
+    [filter, destinationId, latitude, longitude],
   )
 
   const scrollBy = (dir) => {
@@ -101,24 +111,28 @@ function AttractionCard({ attraction }) {
   return (
     <article className="w-[280px] shrink-0 rounded-2xl bg-rw-surface-soft p-2 shadow-sm sm:w-[320px]">
       <div className="relative h-40 overflow-hidden rounded-xl">
-        <img
+        <SoftImage
           src={attraction.image}
-          alt=""
-          className="h-full w-full object-cover"
+          attribution={attraction.imageAttribution}
+          className="h-full w-full rounded-xl"
         />
-        <span className="absolute left-2 top-2 rounded-full bg-[rgba(250,248,255,0.9)] px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-ink backdrop-blur-[6px] dark:bg-black/50 dark:text-white">
-          {attraction.category}
-        </span>
-        <span
-          className={cn(
-            'absolute right-2 top-2 rounded-full px-1 py-0.5 text-[11px] font-bold tracking-[0.55px]',
-            attraction.priceTone === 'teal'
-              ? 'bg-rw-teal text-white'
-              : 'bg-rw-surface-muted text-rw-ink',
-          )}
-        >
-          {attraction.priceLabel}
-        </span>
+        {attraction.category ? (
+          <span className="absolute left-2 top-2 z-[1] rounded-full bg-[rgba(250,248,255,0.9)] px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-ink backdrop-blur-[6px] dark:bg-black/50 dark:text-white">
+            {attraction.category}
+          </span>
+        ) : null}
+        {attraction.priceLabel ? (
+          <span
+            className={cn(
+              'absolute right-2 top-2 z-[1] rounded-full px-1 py-0.5 text-[11px] font-bold tracking-[0.55px]',
+              attraction.priceTone === 'teal'
+                ? 'bg-rw-teal text-white'
+                : 'bg-rw-surface-muted text-rw-ink',
+            )}
+          >
+            {attraction.priceLabel}
+          </span>
+        ) : null}
       </div>
 
       <div className="space-y-1 px-1 pt-3">
@@ -127,15 +141,28 @@ function AttractionCard({ attraction }) {
         </h3>
         <p className="inline-flex items-center gap-1 text-xs tracking-[0.12px] text-rw-muted">
           <IconPin className="text-rw-accent" />
-          {attraction.location}
+          {attraction.location || attraction.address || 'Nearby'}
         </p>
       </div>
 
       <div className="flex items-center justify-between gap-2 px-1 pt-4 pb-1">
-        <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-muted">
-          <IconClock />
-          {attraction.duration}
-        </span>
+        {attraction.duration ? (
+          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-muted">
+            <IconClock />
+            {attraction.duration}
+          </span>
+        ) : attraction.distance != null ? (
+          <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-muted">
+            <IconPin className="size-[11px]" />
+            {attraction.distance < 1000
+              ? `${attraction.distance} m`
+              : `${(attraction.distance / 1000).toFixed(1)} km`}
+          </span>
+        ) : (
+          <span className="text-[11px] font-bold tracking-[0.55px] text-rw-muted">
+            {attraction.category || 'POI'}
+          </span>
+        )}
         <button
           type="button"
           onClick={() => toggleSaved(fromAttraction(attraction))}

@@ -13,7 +13,7 @@ export function SavedEmptyState({
     return (
       <EmptyState
         title={`No saved ${categoryLabel?.toLowerCase() || 'places'}`}
-        message="Try another category, or save more places while browsing Discover and destination pages."
+        message="Try another category or search, or save more places while browsing Discover and destination pages."
         actionLabel="Show all saved"
         onAction={onClearFilter}
       />

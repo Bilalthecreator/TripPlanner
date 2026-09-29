@@ -1,6 +1,7 @@
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
 import { fromHotel } from '../../utils/savedPlaces.js'
+import { SoftImage } from '../common/SoftImage.jsx'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
 import { IconBookmark, IconStar } from '../common/Icons.jsx'
 
@@ -11,13 +12,13 @@ export function HotelCard({ hotel, destinationId }) {
   return (
     <article className="overflow-hidden rounded-2xl bg-rw-surface shadow-sm">
       <div className="relative h-40 overflow-hidden bg-rw-surface-muted">
-        <img src={hotel.image} alt="" className="h-full w-full object-cover" />
+        <SoftImage src={hotel.image} className="h-full w-full" />
         <button
           type="button"
           aria-label={saved ? 'Unsave stay' : 'Save stay'}
           onClick={() => toggleSaved(fromHotel(hotel, destinationId))}
           className={cn(
-            'absolute right-2 top-2 flex size-8 items-center justify-center rounded-full backdrop-blur-[6px]',
+            'absolute right-2 top-2 z-[1] flex size-8 items-center justify-center rounded-full backdrop-blur-[6px]',
             saved ? 'bg-rw-accent text-white' : 'bg-white/90 text-rw-ink',
           )}
         >
@@ -29,10 +30,12 @@ export function HotelCard({ hotel, destinationId }) {
           <p className="text-[11px] font-bold tracking-[0.55px] text-rw-teal uppercase">
             {hotel.area}
           </p>
-          <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-rw-ink">
-            <IconStar className="text-amber-400" />
-            {hotel.rating}
-          </span>
+          {hotel.rating != null ? (
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-rw-ink">
+              <IconStar className="text-amber-400" />
+              {hotel.rating}
+            </span>
+          ) : null}
         </div>
         <h3 className="font-display text-lg font-semibold tracking-[-0.18px] text-rw-ink">
           {hotel.name}
@@ -49,10 +52,14 @@ export function HotelCard({ hotel, destinationId }) {
               </span>
             ))}
           </div>
-          <p className="text-sm font-semibold text-rw-ink">
-            from ${hotel.priceFrom}
-            <span className="text-xs font-normal text-rw-muted"> /night</span>
-          </p>
+          {hotel.priceFrom != null ? (
+            <p className="text-sm font-semibold text-rw-ink">
+              from ${hotel.priceFrom}
+              <span className="text-xs font-normal text-rw-muted"> /night</span>
+            </p>
+          ) : (
+            <p className="text-xs font-semibold text-rw-muted">Listing only</p>
+          )}
         </div>
       </div>
     </article>

@@ -122,7 +122,8 @@ export function SettingsPage() {
           </h1>
           <p className="max-w-2xl text-sm leading-[22px] text-rw-muted">
             Customize localization, format defaults, display themes, and smart
-            calculation helpers for your personal RoamWise workspace.
+            calculation helpers for your personal RoamWise workspace. Preferences
+            stay on this device and never depend on external APIs.
           </p>
         </div>
 

@@ -50,6 +50,14 @@ export function WorkspaceHeader({
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm text-rw-muted">
+            {trip.destination?.name ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-rw-surface-muted px-2.5 py-0.5 text-[12px] font-semibold text-rw-ink">
+                {trip.destination.name}
+                {trip.destination.country
+                  ? `, ${trip.destination.country}`
+                  : ''}
+              </span>
+            ) : null}
             <span className="inline-flex items-center gap-1.5">
               <IconCalendar className="text-rw-faint" />
               {formatTripDateRange(trip.startDate, trip.endDate)}

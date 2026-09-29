@@ -62,6 +62,8 @@ export function buildDaysFromRange(startDate, endDate, existingDays = []) {
 
 export function normalizeActivity(input = {}) {
   const startTime = input.startTime || null
+  const latitude = Number(input.latitude)
+  const longitude = Number(input.longitude)
   return {
     id: input.id || createId('act'),
     title: (input.title || '').trim(),
@@ -70,8 +72,12 @@ export function normalizeActivity(input = {}) {
     durationMinutes: Number(input.durationMinutes) || 0,
     category: input.category || 'Sightseeing',
     notes: input.notes || '',
-    placeId: input.placeId || null,
+    placeId: input.placeId || input.providerPlaceId || null,
+    providerPlaceId: input.providerPlaceId || input.placeId || null,
     placeName: input.placeName || '',
+    address: input.address || '',
+    latitude: Number.isFinite(latitude) ? latitude : null,
+    longitude: Number.isFinite(longitude) ? longitude : null,
     cost: Number(input.cost) || 0,
     completed: Boolean(input.completed),
     scheduled:
@@ -84,6 +90,8 @@ export function createEmptyTrip(basics) {
   const startDate = basics.startDate
   const endDate = basics.endDate
   const days = buildDaysFromRange(startDate, endDate)
+  const destLat = Number(basics.latitude)
+  const destLon = Number(basics.longitude)
 
   return {
     id: createId('trip'),
@@ -92,12 +100,19 @@ export function createEmptyTrip(basics) {
       id: basics.destinationId || null,
       name: basics.destination.trim(),
       country: basics.country?.trim() || '',
+      region: basics.region || '',
+      latitude: Number.isFinite(destLat) ? destLat : null,
+      longitude: Number.isFinite(destLon) ? destLon : null,
+      placeId: basics.placeId || null,
       image: basics.coverImage || null,
     },
     destinations: [
       {
         name: basics.destination.trim(),
         country: basics.country?.trim() || '',
+        latitude: Number.isFinite(destLat) ? destLat : null,
+        longitude: Number.isFinite(destLon) ? destLon : null,
+        placeId: basics.placeId || null,
       },
     ],
     coverImage: basics.coverImage || null,
@@ -123,22 +138,40 @@ export function updateTripWithBasics(trip, basics) {
   const startDate = basics.startDate
   const endDate = basics.endDate
   const days = buildDaysFromRange(startDate, endDate, trip.days)
+  const destLat = Number(basics.latitude)
+  const destLon = Number(basics.longitude)
+  const hasCoords = Number.isFinite(destLat) && Number.isFinite(destLon)
 
   return {
     ...trip,
     name: basics.name.trim(),
     destination: {
       ...trip.destination,
+      id: basics.destinationId || trip.destination?.id || null,
       name: basics.destination.trim(),
       country: basics.country?.trim() || trip.destination?.country || '',
+      region: basics.region || trip.destination?.region || '',
+      latitude: hasCoords ? destLat : trip.destination?.latitude ?? null,
+      longitude: hasCoords ? destLon : trip.destination?.longitude ?? null,
+      placeId: basics.placeId || trip.destination?.placeId || null,
+      image:
+        basics.coverImage ||
+        trip.destination?.image ||
+        trip.coverImage ||
+        null,
     },
     destinations: [
       {
         name: basics.destination.trim(),
         country: basics.country?.trim() || trip.destination?.country || '',
+        latitude: hasCoords ? destLat : trip.destination?.latitude ?? null,
+        longitude: hasCoords ? destLon : trip.destination?.longitude ?? null,
+        placeId: basics.placeId || trip.destination?.placeId || null,
       },
       ...(trip.destinations || []).slice(1),
     ],
+    coverImage:
+      basics.coverImage || trip.coverImage || trip.destination?.image || null,
     startDate,
     endDate,
     travelers: Number(basics.travelers) || 1,
@@ -188,6 +221,10 @@ const CATEGORY_ALIASES = {
   transit: 'transportation',
   misc: 'miscellaneous',
   other: 'miscellaneous',
+  'food & dining': 'food',
+  sightseeing: 'activities',
+  cultural: 'activities',
+  relaxation: 'activities',
 }
 
 export function normalizeExpenseCategory(value) {
@@ -211,6 +248,10 @@ export function normalizeExpense(input = {}, fallbackCurrency = 'USD') {
     category: normalizeExpenseCategory(input.category),
     date: input.date || toISODate(new Date()),
     notes: String(input.notes || '').trim(),
+    source: input.source === 'activity' ? 'activity' : 'manual',
+    activityId: input.activityId || null,
+    dayId: input.dayId || null,
+    readOnly: Boolean(input.readOnly || input.source === 'activity'),
   }
 }
 

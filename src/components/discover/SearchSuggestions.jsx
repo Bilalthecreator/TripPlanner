@@ -18,10 +18,12 @@ export function SearchSuggestions({ suggestions, onSelect, visible }) {
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => onSelect(item)}
           >
-            <IconPin className="text-rw-accent" />
-            <span className="font-semibold text-rw-ink">{item.name}</span>
-            <span className="text-xs text-rw-muted">
-              {item.region} · {item.country}
+            <IconPin className="size-3.5 shrink-0 text-rw-accent" />
+            <span className="min-w-0 truncate font-semibold text-rw-ink">
+              {item.name}
+            </span>
+            <span className="min-w-0 truncate text-xs text-rw-muted">
+              {[item.region, item.country].filter(Boolean).join(' · ')}
             </span>
           </button>
         </li>

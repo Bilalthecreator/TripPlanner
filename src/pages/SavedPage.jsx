@@ -1,25 +1,25 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useSavedPlaces } from '../store/useSavedPlaces.js'
-import { SAVED_FILTERS, typeLabel } from '../utils/savedPlaces.js'
+import { useSavedPlaceEnrichment } from '../hooks/useSavedPlaceEnrichment.js'
+import {
+  SAVED_FILTERS,
+  filterSavedPlaces,
+  typeLabel,
+} from '../utils/savedPlaces.js'
 import { SavedFilters } from '../components/saved/SavedFilters.jsx'
 import { SavedGrid } from '../components/saved/SavedGrid.jsx'
 
 const VALID = new Set(SAVED_FILTERS.map((f) => f.id))
 
 export function SavedPage() {
-  const { savedPlaces } = useSavedPlaces()
+  const { savedPlaces, patchSavedMany } = useSavedPlaces()
   const [searchParams, setSearchParams] = useSearchParams()
   const filterParam = searchParams.get('filter') || 'all'
   const activeFilter = VALID.has(filterParam) ? filterParam : 'all'
+  const [query, setQuery] = useState('')
 
-  const [booting, setBooting] = useState(true)
-  const [retryToken, setRetryToken] = useState(0)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setBooting(false), 280)
-    return () => clearTimeout(timer)
-  }, [retryToken])
+  useSavedPlaceEnrichment(savedPlaces, { patchSavedMany })
 
   const counts = useMemo(() => {
     const next = {
@@ -35,10 +35,14 @@ export function SavedPage() {
     return next
   }, [savedPlaces])
 
-  const filteredPlaces = useMemo(() => {
-    if (activeFilter === 'all') return savedPlaces
-    return savedPlaces.filter((place) => place.type === activeFilter)
-  }, [savedPlaces, activeFilter])
+  const filteredPlaces = useMemo(
+    () =>
+      filterSavedPlaces(savedPlaces, {
+        type: activeFilter,
+        query,
+      }),
+    [savedPlaces, activeFilter, query],
+  )
 
   const setFilter = useCallback(
     (filterId) => {
@@ -53,7 +57,8 @@ export function SavedPage() {
   const categoryLabel =
     SAVED_FILTERS.find((f) => f.id === activeFilter)?.label || 'Places'
 
-  const status = booting ? 'loading' : 'success'
+  const filtered =
+    activeFilter !== 'all' || Boolean(query.trim())
 
   return (
     <div className="flex flex-col gap-8">
@@ -79,17 +84,18 @@ export function SavedPage() {
         activeId={activeFilter}
         onChange={setFilter}
         counts={counts}
+        query={query}
+        onQueryChange={setQuery}
       />
 
       <SavedGrid
         places={filteredPlaces}
-        status={status}
-        filtered={activeFilter !== 'all'}
+        status="success"
+        filtered={filtered}
         categoryLabel={typeLabel(activeFilter) || categoryLabel}
-        onClearFilter={() => setFilter('all')}
-        onRetry={() => {
-          setBooting(true)
-          setRetryToken((n) => n + 1)
+        onClearFilter={() => {
+          setFilter('all')
+          setQuery('')
         }}
       />
     </div>

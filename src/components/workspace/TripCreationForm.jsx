@@ -1,11 +1,19 @@
 import { useState } from 'react'
 import { cn } from '../../utils/cn.js'
 import { usePreferences } from '../../store/usePreferences.js'
+import { getDestinationImage } from '../../services/wikimediaService.js'
+import { DestinationSearchField } from './DestinationSearchField.jsx'
 
 const EMPTY_BASE = {
   name: '',
   destination: '',
   country: '',
+  region: '',
+  destinationId: null,
+  placeId: null,
+  latitude: null,
+  longitude: null,
+  coverImage: null,
   startDate: '',
   endDate: '',
   budget: 2000,
@@ -54,6 +62,48 @@ export function TripCreationForm({
 
   const setField = (key, value) => {
     setValues((prev) => ({ ...prev, [key]: value }))
+  }
+
+  const handleDestinationText = (text) => {
+    setValues((prev) => ({
+      ...prev,
+      destination: text,
+      // Clear geo metadata when the user types freely after a selection.
+      destinationId: null,
+      placeId: null,
+      latitude: null,
+      longitude: null,
+      coverImage: null,
+      region: '',
+    }))
+  }
+
+  const handleDestinationSelect = async (item) => {
+    setValues((prev) => ({
+      ...prev,
+      destination: item.name || prev.destination,
+      country: item.country || prev.country,
+      region: item.region || '',
+      destinationId: item.id || null,
+      placeId: item.placeId || null,
+      latitude: item.latitude ?? null,
+      longitude: item.longitude ?? null,
+    }))
+
+    // Best-effort Wikimedia cover — never blocks create/save.
+    try {
+      const image = await getDestinationImage(
+        [item.name, item.country].filter(Boolean).join(', '),
+      )
+      if (image?.url) {
+        setValues((prev) => ({
+          ...prev,
+          coverImage: image.url,
+        }))
+      }
+    } catch {
+      // ignore image enrichment failures
+    }
   }
 
   const validate = () => {
@@ -118,14 +168,29 @@ export function TripCreationForm({
       </Field>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Destination" error={errors.destination}>
-          <input
+        <div className="block space-y-1.5">
+          <span className="text-[11px] font-bold tracking-[0.55px] text-rw-muted uppercase">
+            Destination
+          </span>
+          <DestinationSearchField
             value={values.destination}
-            onChange={(e) => setField('destination', e.target.value)}
-            className={inputClass(errors.destination)}
-            placeholder="Kyoto"
+            country={values.country}
+            error={errors.destination}
+            onChange={handleDestinationText}
+            onSelect={handleDestinationSelect}
+            inputClassName={inputClass(errors.destination)}
           />
-        </Field>
+          {values.latitude != null && values.longitude != null ? (
+            <p className="text-[11px] text-rw-teal">
+              Mapped · {Number(values.latitude).toFixed(3)},{' '}
+              {Number(values.longitude).toFixed(3)}
+            </p>
+          ) : (
+            <p className="text-[11px] text-rw-muted">
+              Select a suggestion for map/weather enrichment, or keep a typed name.
+            </p>
+          )}
+        </div>
         <Field label="Country (optional)">
           <input
             value={values.country}
@@ -155,7 +220,7 @@ export function TripCreationForm({
         </Field>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Travelers" error={errors.travelers}>
           <input
             type="number"
@@ -166,28 +231,33 @@ export function TripCreationForm({
             className={inputClass(errors.travelers)}
           />
         </Field>
-        <Field label="Budget" error={errors.budget}>
-          <div className="flex gap-2">
-            <select
-              value={values.currency}
-              onChange={(e) => setField('currency', e.target.value)}
-              className={cn(inputClass(), 'w-24 shrink-0')}
-            >
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="JPY">JPY</option>
-              <option value="GBP">GBP</option>
-            </select>
-            <input
-              type="number"
-              min={0}
-              step={50}
-              value={values.budget}
-              onChange={(e) => setField('budget', e.target.value)}
-              className={inputClass(errors.budget)}
-            />
-          </div>
-        </Field>
+        <div className="sm:col-span-2">
+          <Field label="Total trip budget" error={errors.budget}>
+            <div className="flex gap-2">
+              <select
+                value={values.currency}
+                onChange={(e) => setField('currency', e.target.value)}
+                aria-label="Budget currency"
+                className={cn(inputClass(), 'w-28 shrink-0')}
+              >
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="JPY">JPY</option>
+                <option value="GBP">GBP</option>
+              </select>
+              <input
+                type="number"
+                min={0}
+                step={50}
+                inputMode="decimal"
+                placeholder="e.g. 2500"
+                value={values.budget}
+                onChange={(e) => setField('budget', e.target.value)}
+                className={cn(inputClass(errors.budget), 'min-w-0 flex-1')}
+              />
+            </div>
+          </Field>
+        </div>
       </div>
 
       <div className="flex flex-wrap justify-end gap-2 pt-2">

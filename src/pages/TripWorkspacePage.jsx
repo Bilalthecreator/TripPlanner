@@ -14,6 +14,8 @@ import {
 import { TripCreationForm } from '../components/workspace/TripCreationForm.jsx'
 import { ItineraryBuilder } from '../components/workspace/ItineraryBuilder.jsx'
 import { WorkspaceSkeleton } from '../components/workspace/WorkspaceSkeleton.jsx'
+import { TripWeatherPanel } from '../components/workspace/TripWeatherPanel.jsx'
+import { TripMapPanel } from '../components/workspace/TripMapPanel.jsx'
 
 function tabFromPath(pathname, search) {
   const params = new URLSearchParams(search)
@@ -71,8 +73,12 @@ function TripWorkspaceInner({ mode }) {
   }
 
   if (isCreate) {
+    const draft = location.state && typeof location.state === 'object'
+      ? location.state
+      : null
     return (
       <TripCreationForm
+        initialValues={draft || undefined}
         onCancel={() => navigate('/trips')}
         onSubmit={(basics) => {
           const trip = tripsApi.createTrip(basics)
@@ -151,6 +157,12 @@ function TripWorkspaceInner({ mode }) {
             name: trip.name,
             destination: trip.destination?.name || '',
             country: trip.destination?.country || '',
+            region: trip.destination?.region || '',
+            destinationId: trip.destination?.id || null,
+            placeId: trip.destination?.placeId || null,
+            latitude: trip.destination?.latitude ?? null,
+            longitude: trip.destination?.longitude ?? null,
+            coverImage: trip.coverImage || trip.destination?.image || null,
             startDate: trip.startDate || '',
             endDate: trip.endDate || '',
             travelers: trip.travelers || 1,
@@ -221,11 +233,22 @@ function TripWorkspaceInner({ mode }) {
               />
             </div>
           </section>
+
+          <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <TripWeatherPanel destination={trip.destination} />
+            <TripMapPanel trip={trip} />
+          </section>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           <TripOverview stats={stats} />
-          <ItineraryBuilder trip={trip} tripsApi={tripsApi} />
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+            <ItineraryBuilder trip={trip} tripsApi={tripsApi} />
+            <div className="space-y-4">
+              <TripWeatherPanel destination={trip.destination} />
+              <TripMapPanel trip={trip} />
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,40 +1,81 @@
+import { useState } from 'react'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
 import { fromAttraction } from '../../utils/savedPlaces.js'
+import { destinationService } from '../../services/destinationService.js'
+import { SoftImage } from '../common/SoftImage.jsx'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
 import { IconClock, IconPlus, IconStar } from '../common/Icons.jsx'
 
 export function PlaceCard({ place, destinationId }) {
   const { isSaved, toggleSaved } = useSavedPlaces()
   const saved = isSaved(place.id)
+  const [details, setDetails] = useState(null)
+  const [detailsStatus, setDetailsStatus] = useState('idle')
+
+  const openDetails = async () => {
+    if (!place.placeId && place.latitude == null) return
+    if (detailsStatus === 'loading') return
+    if (details) {
+      setDetails(null)
+      setDetailsStatus('idle')
+      return
+    }
+
+    setDetailsStatus('loading')
+    try {
+      const result = await destinationService.getPlaceDetails(place.placeId, {
+        latitude: place.latitude,
+        longitude: place.longitude,
+      })
+      setDetails(result)
+      setDetailsStatus(result ? 'success' : 'empty')
+    } catch {
+      setDetailsStatus('error')
+    }
+  }
 
   return (
     <article className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl bg-rw-surface shadow-sm">
-      <div className="relative h-44 overflow-hidden bg-rw-surface-muted">
-        <img src={place.image} alt="" className="h-full w-full object-cover" />
-        <span
-          className={cn(
-            'absolute right-1 top-1 rounded-full bg-white/90 px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] backdrop-blur-[2px]',
-            place.priceTone === 'free' ? 'text-rw-teal' : 'text-rw-ink',
-          )}
-        >
-          {place.priceLabel}
-        </span>
-        <span className="absolute bottom-1 left-1 inline-flex items-center gap-1 rounded-full bg-black/60 px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-white backdrop-blur-[2px]">
-          <IconClock className="size-[11px]" />
-          {place.duration}
-        </span>
-      </div>
+      <button
+        type="button"
+        onClick={openDetails}
+        className="relative h-44 overflow-hidden bg-rw-surface-muted text-left"
+      >
+        <SoftImage
+          src={place.image}
+          attribution={place.imageAttribution}
+          className="h-full w-full"
+        />
+        {place.priceLabel ? (
+          <span
+            className={cn(
+              'absolute right-1 top-1 z-[1] rounded-full bg-white/90 px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] backdrop-blur-[2px]',
+              place.priceTone === 'free' ? 'text-rw-teal' : 'text-rw-ink',
+            )}
+          >
+            {place.priceLabel}
+          </span>
+        ) : null}
+        {place.duration ? (
+          <span className="absolute bottom-1 left-1 z-[1] inline-flex items-center gap-1 rounded-full bg-black/60 px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-white backdrop-blur-[2px]">
+            <IconClock className="size-[11px]" />
+            {place.duration}
+          </span>
+        ) : null}
+      </button>
       <div className="flex flex-1 flex-col justify-between gap-3 p-4">
         <div className="space-y-1">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-bold tracking-[0.55px] text-rw-teal uppercase">
               {place.area}
             </p>
-            <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold tracking-[0.55px] text-rw-ink">
-              <IconStar className="text-amber-400" />
-              {place.rating}
-            </span>
+            {place.rating != null ? (
+              <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold tracking-[0.55px] text-rw-ink">
+                <IconStar className="text-amber-400" />
+                {place.rating}
+              </span>
+            ) : null}
           </div>
           <h3 className="font-display text-lg font-semibold tracking-[-0.18px] text-rw-ink">
             {place.name}
@@ -42,9 +83,36 @@ export function PlaceCard({ place, destinationId }) {
           <p className="line-clamp-2 text-xs leading-[18px] tracking-[0.12px] text-rw-muted">
             {place.description}
           </p>
+          {detailsStatus === 'loading' ? (
+            <p className="text-[11px] text-rw-muted">Loading place details…</p>
+          ) : null}
+          {detailsStatus === 'error' ? (
+            <p className="text-[11px] text-rw-accent">Place details unavailable.</p>
+          ) : null}
+          {details ? (
+            <div className="rounded-xl bg-rw-surface-soft p-2 text-[11px] leading-4 text-rw-muted">
+              {details.address ? <p>{details.address}</p> : null}
+              {details.website ? (
+                <a
+                  href={details.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 inline-block text-rw-accent"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Website
+                </a>
+              ) : null}
+              {details.openingHours ? (
+                <p className="mt-1">Hours: {String(details.openingHours)}</p>
+              ) : null}
+            </div>
+          ) : null}
         </div>
         <div className="flex items-center justify-between gap-2 pt-1">
-          <p className="text-[11px] font-bold tracking-[0.55px] text-rw-muted">{place.note}</p>
+          <p className="text-[11px] font-bold tracking-[0.55px] text-rw-muted">
+            {place.note || 'Tap photo for details'}
+          </p>
           <button
             type="button"
             onClick={() => toggleSaved(fromAttraction(place, destinationId))}

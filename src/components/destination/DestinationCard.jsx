@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { cn } from '../../utils/cn.js'
 import { useSavedPlaces } from '../../store/useSavedPlaces.js'
 import { fromDestination } from '../../utils/savedPlaces.js'
+import { SoftImage } from '../common/SoftImage.jsx'
 import { IconArrowRight, IconBookmark, IconStar } from '../common/Icons.jsx'
 
 export function DestinationCard({ destination, layout = 'grid' }) {
@@ -9,6 +10,9 @@ export function DestinationCard({ destination, layout = 'grid' }) {
   const { isSaved, toggleSaved } = useSavedPlaces()
   const saved = isSaved(destination.id)
   const href = `/destinations/${destination.id}`
+  const tags = Array.isArray(destination.tags) ? destination.tags : []
+  const hasRating =
+    destination.rating != null && Number.isFinite(Number(destination.rating))
 
   return (
     <article
@@ -32,14 +36,13 @@ export function DestinationCard({ destination, layout = 'grid' }) {
           layout === 'grid' ? 'h-56 w-full' : 'h-56 w-full sm:h-auto sm:w-56 sm:shrink-0',
         )}
       >
-        <img
+        <SoftImage
           src={destination.image}
-          alt=""
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          className="h-full w-full"
         />
 
-        <div className="absolute left-3 top-3 flex flex-wrap gap-1">
-          {destination.tags.map((tag) => (
+        <div className="absolute left-3 top-3 z-[1] flex flex-wrap gap-1">
+          {tags.map((tag) => (
             <span
               key={tag}
               className="rounded-full bg-[rgba(250,248,255,0.9)] px-1 py-0.5 text-[11px] font-bold tracking-[0.55px] text-rw-ink shadow-sm backdrop-blur-[6px] dark:bg-black/50 dark:text-white"
@@ -59,7 +62,7 @@ export function DestinationCard({ destination, layout = 'grid' }) {
             toggleSaved(fromDestination(destination))
           }}
           className={cn(
-            'absolute right-3 top-3 flex size-8 items-center justify-center rounded-full shadow-sm backdrop-blur-[6px] transition',
+            'absolute right-3 top-3 z-[1] flex size-8 items-center justify-center rounded-full shadow-sm backdrop-blur-[6px] transition',
             saved
               ? 'bg-rw-accent text-white'
               : 'bg-[rgba(250,248,255,0.9)] text-rw-ink dark:bg-black/50 dark:text-white',
@@ -68,15 +71,26 @@ export function DestinationCard({ destination, layout = 'grid' }) {
           <IconBookmark filled={saved} />
         </button>
 
-        <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(19,27,46,0.6)] px-2 py-0.5 text-[11px] font-bold tracking-[0.55px] text-[#faf8ff] backdrop-blur-[6px]">
-            <IconStar className="size-[11px] text-amber-300" />
-            {destination.rating.toFixed(2)} ({destination.ratingCount})
-          </span>
-          <span className="rounded-full bg-[rgba(19,27,46,0.6)] px-2 py-0.5 text-[11px] font-bold tracking-[0.55px] text-[#faf8ff] backdrop-blur-[6px]">
-            {destination.status}
-          </span>
-        </div>
+        {(hasRating || destination.status) && (
+          <div className="absolute inset-x-3 bottom-3 z-[1] flex items-center justify-between gap-2">
+            {hasRating ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(19,27,46,0.6)] px-2 py-0.5 text-[11px] font-bold tracking-[0.55px] text-[#faf8ff] backdrop-blur-[6px]">
+                <IconStar className="size-[11px] text-amber-300" />
+                {Number(destination.rating).toFixed(2)}
+                {destination.ratingCount
+                  ? ` (${destination.ratingCount})`
+                  : ''}
+              </span>
+            ) : (
+              <span />
+            )}
+            {destination.status ? (
+              <span className="rounded-full bg-[rgba(19,27,46,0.6)] px-2 py-0.5 text-[11px] font-bold tracking-[0.55px] text-[#faf8ff] backdrop-blur-[6px]">
+                {destination.status}
+              </span>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col justify-between gap-3 p-4">
@@ -90,16 +104,61 @@ export function DestinationCard({ destination, layout = 'grid' }) {
             </span>
           </div>
           <p className="line-clamp-2 text-xs leading-[18px] tracking-[0.12px] text-rw-muted">
-            {destination.description}
+            {destination.description ||
+              [destination.region, destination.country].filter(Boolean).join(', ')}
           </p>
+          {(destination.imageAttribution?.sourceLabel ||
+            destination.imageAttribution?.photographer) ? (
+            <p className="text-[10px] tracking-[0.12px] text-rw-faint">
+              Image via{' '}
+              <a
+                href={
+                  destination.imageAttribution.pageUrl ||
+                  destination.imageAttribution.photographerUrl ||
+                  destination.imageAttribution.sourceUrl
+                }
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="underline decoration-rw-faint/60 underline-offset-2 hover:text-rw-muted"
+              >
+                {destination.imageAttribution.photographer ||
+                  destination.imageAttribution.label ||
+                  'Wikipedia'}
+              </a>
+              {' / '}
+              <a
+                href={
+                  destination.imageAttribution.pageUrl ||
+                  destination.imageAttribution.sourceUrl ||
+                  'https://en.wikipedia.org/'
+                }
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="underline decoration-rw-faint/60 underline-offset-2 hover:text-rw-muted"
+              >
+                {destination.imageAttribution.sourceLabel || 'Wikipedia'}
+              </a>
+            </p>
+          ) : null}
         </div>
 
         <div className="flex items-center justify-between gap-3 pt-1">
           <div>
             <p className="text-[11px] font-bold tracking-[0.55px] text-rw-muted">Daily Avg</p>
             <p className="text-base font-semibold tracking-[-0.08px] text-rw-ink">
-              ${destination.dailyAvg}
-              <span className="text-xs font-normal tracking-[0.12px] text-rw-muted"> /day</span>
+              {destination.dailyAvg != null ? (
+                <>
+                  ${destination.dailyAvg}
+                  <span className="text-xs font-normal tracking-[0.12px] text-rw-muted">
+                    {' '}
+                    /day
+                  </span>
+                </>
+              ) : (
+                <span className="text-sm font-medium text-rw-muted">—</span>
+              )}
             </p>
           </div>
           <Link

@@ -1,42 +1,73 @@
 import {
+  CURRENCIES,
   DEFAULT_PREFERENCES,
   LEGACY_THEME_KEY,
   PREFERENCES_STORAGE_KEY,
+  TRAVEL_AFFINITIES,
 } from '../data/preferences.js'
+
+const CURRENCY_IDS = new Set(CURRENCIES.map((c) => c.id))
+const TRAVEL_IDS = new Set(TRAVEL_AFFINITIES.map((a) => a.id))
 
 function isObject(value) {
   return value != null && typeof value === 'object' && !Array.isArray(value)
 }
 
-export function normalizePreferences(raw) {
-  const base = { ...DEFAULT_PREFERENCES, ...(isObject(raw) ? raw : {}) }
+function stableStringify(prefs) {
+  return JSON.stringify(prefs)
+}
 
-  const currency = String(base.currency || 'USD').toUpperCase()
+/**
+ * Coerce any raw preferences blob into a safe, complete preferences object.
+ * Never throws.
+ */
+export function normalizePreferences(raw) {
+  const base = {
+    ...DEFAULT_PREFERENCES,
+    ...(isObject(raw) ? raw : {}),
+  }
+
+  const currencyRaw = String(base.currency || DEFAULT_PREFERENCES.currency)
+    .trim()
+    .toUpperCase()
+  const currency = CURRENCY_IDS.has(currencyRaw)
+    ? currencyRaw
+    : DEFAULT_PREFERENCES.currency
+
   const temperatureUnit = base.temperatureUnit === 'F' ? 'F' : 'C'
   const distanceUnit = base.distanceUnit === 'mi' ? 'mi' : 'km'
   const weekStartsOn = base.weekStartsOn === 'sunday' ? 'sunday' : 'monday'
   const theme =
     base.theme === 'dark' || base.theme === 'system' || base.theme === 'light'
       ? base.theme
-      : 'light'
+      : DEFAULT_PREFERENCES.theme
 
   let defaultTravelers = Number(base.defaultTravelers)
   if (!Number.isFinite(defaultTravelers) || defaultTravelers < 1) {
-    defaultTravelers = 1
+    defaultTravelers = DEFAULT_PREFERENCES.defaultTravelers
   }
   if (defaultTravelers > 30) defaultTravelers = 30
   defaultTravelers = Math.round(defaultTravelers)
 
   const pacing = ['relaxed', 'balanced', 'fast'].includes(base.pacing)
     ? base.pacing
-    : 'balanced'
+    : DEFAULT_PREFERENCES.pacing
   const budgetTier = ['backpacker', 'mid', 'luxury'].includes(base.budgetTier)
     ? base.budgetTier
-    : 'mid'
+    : DEFAULT_PREFERENCES.budgetTier
 
-  const travelPreferences = Array.isArray(base.travelPreferences)
-    ? base.travelPreferences.filter((id) => typeof id === 'string')
-    : [...DEFAULT_PREFERENCES.travelPreferences]
+  let travelPreferences
+  if (Array.isArray(base.travelPreferences)) {
+    travelPreferences = [
+      ...new Set(
+        base.travelPreferences.filter(
+          (id) => typeof id === 'string' && TRAVEL_IDS.has(id),
+        ),
+      ),
+    ]
+  } else {
+    travelPreferences = [...DEFAULT_PREFERENCES.travelPreferences]
+  }
 
   const automationSrc = isObject(base.automation) ? base.automation : {}
   const automation = {
@@ -72,17 +103,7 @@ export function normalizePreferences(raw) {
   }
 }
 
-export function loadPreferences() {
-  try {
-    const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY)
-    if (raw) {
-      return normalizePreferences(JSON.parse(raw))
-    }
-  } catch {
-    /* fall through to defaults / legacy */
-  }
-
-  // Migrate legacy theme key once when preferences bag is missing.
+function readLegacyThemePreference() {
   try {
     const legacy = localStorage.getItem(LEGACY_THEME_KEY)
     if (legacy === 'dark' || legacy === 'light') {
@@ -91,15 +112,16 @@ export function loadPreferences() {
   } catch {
     /* ignore */
   }
-
-  return normalizePreferences(DEFAULT_PREFERENCES)
+  return null
 }
 
-export function savePreferences(prefs) {
-  const normalized = normalizePreferences(prefs)
+function persistIfChanged(normalized) {
   try {
-    localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify(normalized))
-    // Keep legacy theme key in sync for older readers.
+    const next = stableStringify(normalized)
+    const current = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+    if (current === next) return normalized
+
+    localStorage.setItem(PREFERENCES_STORAGE_KEY, next)
     if (normalized.theme === 'light' || normalized.theme === 'dark') {
       localStorage.setItem(LEGACY_THEME_KEY, normalized.theme)
     }
@@ -107,6 +129,57 @@ export function savePreferences(prefs) {
     /* ignore quota / private mode */
   }
   return normalized
+}
+
+/**
+ * Load preferences from localStorage.
+ * Malformed / invalid data → safe defaults, then persist the corrected state.
+ */
+export function loadPreferences() {
+  let parsed = null
+  let corrupt = false
+
+  try {
+    const raw = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+    if (raw != null && raw !== '') {
+      const value = JSON.parse(raw)
+      if (isObject(value)) {
+        parsed = value
+      } else {
+        corrupt = true
+      }
+    }
+  } catch {
+    corrupt = true
+  }
+
+  let normalized
+  if (parsed) {
+    normalized = normalizePreferences(parsed)
+  } else {
+    const legacy = readLegacyThemePreference()
+    normalized = legacy || normalizePreferences(DEFAULT_PREFERENCES)
+  }
+
+  // Always self-heal: rewrite storage when corrupt or when normalization changed fields.
+  if (corrupt || parsed == null) {
+    return persistIfChanged(normalized)
+  }
+
+  try {
+    const next = stableStringify(normalized)
+    const current = localStorage.getItem(PREFERENCES_STORAGE_KEY)
+    if (current !== next) return persistIfChanged(normalized)
+  } catch {
+    return persistIfChanged(normalized)
+  }
+
+  return normalized
+}
+
+export function savePreferences(prefs) {
+  const normalized = normalizePreferences(prefs)
+  return persistIfChanged(normalized)
 }
 
 export function estimateLocalStorageBytes() {

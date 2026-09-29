@@ -1,14 +1,13 @@
-import { cn } from '../../utils/cn.js'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
 import {
   IconBike,
   IconBus,
   IconExpand,
-  IconHome,
   IconMetro,
   IconPin,
   IconTrain,
 } from '../common/Icons.jsx'
+import { GeoapifyMap } from './GeoapifyMap.jsx'
 
 const TRANSIT_ICONS = [IconTrain, IconMetro, IconBus, IconBike]
 
@@ -63,31 +62,23 @@ export function LocationPreview({ id, status, data, error, onRetry, destination 
         </div>
 
         <div className="relative h-72 overflow-hidden bg-rw-surface-muted">
-          <img src={data.mapImage} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 flex flex-col justify-between p-2">
-            <div className="self-start rounded-full bg-white/95 px-2 py-1 text-[11px] font-bold tracking-[0.55px] text-rw-ink shadow-md backdrop-blur-[6px]">
+          <GeoapifyMap
+            latitude={data.lat}
+            longitude={data.lng}
+            markers={data.markers || []}
+            className="h-72 w-full"
+          />
+          <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between p-2">
+            <div className="rounded-full bg-white/95 px-2 py-1 text-[11px] font-bold tracking-[0.55px] text-rw-ink shadow-md backdrop-blur-[6px] dark:bg-black/70 dark:text-white">
               {data.routeLabel}
             </div>
-            {data.pins?.map((pin) => (
-              <span
-                key={pin.id}
-                className={cn(
-                  'absolute flex size-8 items-center justify-center rounded-full border-2 border-white text-white shadow-lg',
-                  pin.tone === 'teal' ? 'bg-rw-teal' : 'bg-rw-accent',
-                )}
-                style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
-              >
-                {pin.tone === 'teal' ? <IconHome className="size-3.5" /> : <IconPin className="h-3.5 w-3" />}
-              </span>
-            ))}
-            <div className="flex items-center justify-between rounded-xl bg-white/90 px-1 py-1 shadow-md backdrop-blur-[6px]">
-              <p className="inline-flex items-center gap-1 px-1 text-[11px] font-bold tracking-[0.55px] text-rw-ink">
+          </div>
+          <div className="pointer-events-none absolute inset-x-2 bottom-2">
+            <div className="flex items-center justify-between rounded-xl bg-white/90 px-1 py-1 shadow-md backdrop-blur-[6px] dark:bg-black/70">
+              <p className="inline-flex items-center gap-1 px-1 text-[11px] font-bold tracking-[0.55px] text-rw-ink dark:text-white">
                 <IconPin className="h-3 w-2.5 text-rw-accent" />
                 {data.highlightsLabel}
               </p>
-              <button type="button" className="px-2 text-[11px] font-bold tracking-[0.55px] text-rw-accent">
-                Trace Route
-              </button>
             </div>
           </div>
         </div>
@@ -97,7 +88,7 @@ export function LocationPreview({ id, status, data, error, onRetry, destination 
             Transit Accessibility
           </p>
           <div className="grid grid-cols-2 gap-1">
-            {data.transit.map((item, index) => {
+            {(data.transit || []).map((item, index) => {
               const Icon = TRANSIT_ICONS[index % TRANSIT_ICONS.length]
               return (
                 <div

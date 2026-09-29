@@ -9,7 +9,11 @@ import {
 } from './pages/TripWorkspacePage.jsx'
 import { SettingsPage } from './pages/SettingsPage.jsx'
 import { SavedPage } from './pages/SavedPage.jsx'
-import { StubPage } from './pages/placeholders.jsx'
+import { BudgetPage } from './pages/BudgetPage.jsx'
+import {
+  BudgetNavRedirect,
+  WorkspaceNavRedirect,
+} from './pages/TripNavRedirects.jsx'
 import { SavedPlacesProvider } from './store/SavedPlacesContext.jsx'
 import { PreferencesProvider } from './store/PreferencesContext.jsx'
 import { TripsProvider } from './store/TripsContext.jsx'
@@ -39,13 +43,10 @@ export default function App() {
                 />
                 <Route
                   path="/trips/:tripId/budget"
-                  element={<StubPage title="Trip Budget" />}
+                  element={<BudgetPage />}
                 />
-                <Route
-                  path="/workspace"
-                  element={<StubPage title="Trip Workspace" />}
-                />
-                <Route path="/budget" element={<StubPage title="Budget" />} />
+                <Route path="/workspace" element={<WorkspaceNavRedirect />} />
+                <Route path="/budget" element={<BudgetNavRedirect />} />
                 <Route path="/saved" element={<SavedPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

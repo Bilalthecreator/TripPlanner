@@ -11,11 +11,21 @@ import {
 } from '../utils/preferencesStorage.js'
 
 export function PreferencesProvider({ children }) {
-  const [preferences, setPreferences] = useState(() => loadPreferences())
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      return loadPreferences()
+    } catch {
+      return savePreferences(DEFAULT_PREFERENCES)
+    }
+  })
   const [savedAt, setSavedAt] = useState(() => Date.now())
-  const [storageBytes, setStorageBytes] = useState(() =>
-    estimateLocalStorageBytes(),
-  )
+  const [storageBytes, setStorageBytes] = useState(() => {
+    try {
+      return estimateLocalStorageBytes()
+    } catch {
+      return 0
+    }
+  })
 
   const resolvedTheme = useMemo(
     () => resolveTheme(preferences.theme),
@@ -42,12 +52,18 @@ export function PreferencesProvider({ children }) {
 
   const commit = useCallback((updater) => {
     setPreferences((current) => {
-      const next =
-        typeof updater === 'function' ? updater(current) : { ...current, ...updater }
-      const saved = savePreferences(next)
-      setSavedAt(Date.now())
-      setStorageBytes(estimateLocalStorageBytes())
-      return saved
+      try {
+        const next =
+          typeof updater === 'function'
+            ? updater(current)
+            : { ...current, ...updater }
+        const saved = savePreferences(next)
+        setSavedAt(Date.now())
+        setStorageBytes(estimateLocalStorageBytes())
+        return saved
+      } catch {
+        return current
+      }
     })
   }, [])
 
@@ -84,17 +100,25 @@ export function PreferencesProvider({ children }) {
   )
 
   const resetDefaults = useCallback(() => {
-    const saved = savePreferences(DEFAULT_PREFERENCES)
-    setPreferences(saved)
-    setSavedAt(Date.now())
-    setStorageBytes(estimateLocalStorageBytes())
+    try {
+      const saved = savePreferences(DEFAULT_PREFERENCES)
+      setPreferences(saved)
+      setSavedAt(Date.now())
+      setStorageBytes(estimateLocalStorageBytes())
+    } catch {
+      setPreferences(DEFAULT_PREFERENCES)
+    }
   }, [])
 
   const replaceAll = useCallback((next) => {
-    const saved = savePreferences(next)
-    setPreferences(saved)
-    setSavedAt(Date.now())
-    setStorageBytes(estimateLocalStorageBytes())
+    try {
+      const saved = savePreferences(next)
+      setPreferences(saved)
+      setSavedAt(Date.now())
+      setStorageBytes(estimateLocalStorageBytes())
+    } catch {
+      setPreferences(savePreferences(DEFAULT_PREFERENCES))
+    }
   }, [])
 
   // Theme compatibility API used by AppShell / useTheme

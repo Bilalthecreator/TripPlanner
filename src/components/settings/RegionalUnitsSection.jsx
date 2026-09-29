@@ -23,8 +23,8 @@ export function CurrencySelector({ value, onChange }) {
         onChange={onChange}
       />
       <p className="text-[12px] text-rw-muted">
-        Used across trip budgets and header displays. Conversion rates are not
-        applied in this frontend stage.
+        Local display currency for budgets and the app header. Conversion runs
+        on the Budget page only when an expense currency differs.
       </p>
     </div>
   )

@@ -1,34 +1,66 @@
-export function IconSearch({ className = 'size-[16.5px]' }) {
+import { cn } from '../../utils/cn.js'
+
+export function IconSearch({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={cn('size-4 shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-      <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M20 20l-3.5-3.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
 
-export function IconSliders({ className = 'size-[13.5px]' }) {
+export function IconSliders({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg
+      className={cn('size-[13.5px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 7h10M18 7h2M4 17h2M10 17h10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
       <circle cx="16" cy="7" r="2.5" stroke="currentColor" strokeWidth="2" />
       <circle cx="8" cy="17" r="2.5" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }
 
-export function IconCalendar({ className = 'h-[15px] w-[13.5px]' }) {
+export function IconCalendar({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={cn('h-[15px] w-[13.5px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <rect x="3" y="5" width="18" height="16" rx="3" stroke="currentColor" strokeWidth="2" />
       <path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }
 
-export function IconTravelers({ className = 'h-[12px] w-[16.5px]' }) {
+export function IconTravelers({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={cn('h-[12px] w-[16.5px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="2" />
       <circle cx="17" cy="9" r="2.5" stroke="currentColor" strokeWidth="2" />
       <path d="M3 19c1.5-3 4-4.5 6-4.5S13.5 16 15 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -74,9 +106,14 @@ export function IconPlus({ className = 'size-[10.5px]' }) {
   )
 }
 
-export function IconPin({ className = 'h-[13px] w-[10.5px]' }) {
+export function IconPin({ className }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      className={cn('h-[13px] w-[10.5px] shrink-0', className)}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"
         stroke="currentColor"

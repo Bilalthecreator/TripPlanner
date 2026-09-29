@@ -18,7 +18,8 @@ export function HomePage() {
 
   const search = useDestinationSearch({ filter: activeFilter })
 
-  const weatherDestinationId = search.results[0]?.id ?? 'kyoto'
+  const focusDestination = search.results[0] ?? null
+  const weatherDestinationId = focusDestination?.id ?? 'kyoto'
 
   const setFilter = (filterId) => {
     const next = new URLSearchParams(searchParams)
@@ -28,6 +29,15 @@ export function HomePage() {
   }
 
   const isSearch = Boolean(search.query)
+  const activeFilterMeta = filters.find((f) => f.id === activeFilter)
+  const gridTitle =
+    !isSearch && activeFilter !== 'all' && activeFilterMeta
+      ? `${activeFilterMeta.label} Destinations`
+      : 'Trending Destinations'
+  const gridSubtitle =
+    !isSearch && activeFilter !== 'all' && activeFilterMeta
+      ? `Places that match your ${activeFilterMeta.label.toLowerCase()} filter`
+      : 'Curated destinations to start exploring'
 
   return (
     <div className="flex flex-col gap-10">
@@ -41,11 +51,13 @@ export function HomePage() {
           setShowSuggestions={search.setShowSuggestions}
           onSelectSuggestion={search.selectSuggestion}
         />
-        <FilterChips
-          filters={filters}
-          activeId={activeFilter}
-          onChange={setFilter}
-        />
+        <div id="discover-filters">
+          <FilterChips
+            filters={filters}
+            activeId={activeFilter}
+            onChange={setFilter}
+          />
+        </div>
       </section>
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -54,6 +66,8 @@ export function HomePage() {
       </section>
 
       <DestinationGrid
+        title={gridTitle}
+        subtitle={gridSubtitle}
         destinations={search.results}
         status={search.status === 'idle' ? 'loading' : search.status}
         error={search.error}
@@ -64,7 +78,12 @@ export function HomePage() {
         isSearch={isSearch}
       />
 
-      <AttractionsStrip filter={activeFilter} />
+      <AttractionsStrip
+        filter={activeFilter}
+        destinationId={focusDestination?.id}
+        latitude={focusDestination?.latitude}
+        longitude={focusDestination?.longitude}
+      />
 
       <DiscoveryTips />
     </div>

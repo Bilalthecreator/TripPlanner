@@ -168,7 +168,13 @@ export function DestinationDetailsPage() {
           <DestinationTabs
             activeTab={activeTab}
             onTabChange={handleTabChange}
-            counts={details.counts}
+            counts={{
+              attractions:
+                attractions.data?.length ?? details.counts?.attractions ?? 0,
+              restaurants:
+                restaurants.data?.length ?? details.counts?.restaurants ?? 0,
+              hotels: hotels.data?.length ?? details.counts?.hotels ?? 0,
+            }}
             activeFilter={placeFilter}
             onFilterChange={setPlaceFilter}
           />
@@ -183,7 +189,7 @@ export function DestinationDetailsPage() {
                   id={SECTION_IDS.attractions}
                   eyebrow="Signature Landmarks"
                   title={`Top Attractions in ${details.name}`}
-                  viewAllLabel={`View all ${details.counts.attractions}`}
+                  viewAllLabel={`View all ${attractions.data?.length ?? details.counts.attractions}`}
                   items={attractions.data}
                   status={attractions.status}
                   error={attractions.error}
@@ -196,7 +202,9 @@ export function DestinationDetailsPage() {
               {showRestaurants ? (
                 <RestaurantsSection
                   id={SECTION_IDS.restaurants}
-                  count={details.counts.restaurants}
+                  count={
+                    restaurants.data?.length ?? details.counts?.restaurants ?? 0
+                  }
                   items={restaurants.data}
                   status={restaurants.status}
                   error={restaurants.error}
@@ -210,7 +218,7 @@ export function DestinationDetailsPage() {
               {showHotels ? (
                 <HotelsSection
                   id={SECTION_IDS.hotels}
-                  count={details.counts.hotels}
+                  count={hotels.data?.length ?? details.counts?.hotels ?? 0}
                   items={hotels.data}
                   status={hotels.status}
                   error={hotels.error}

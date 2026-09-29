@@ -217,6 +217,22 @@ function reducer(state, action) {
       )
     }
 
+    case 'setBudget': {
+      const total = Number(action.total)
+      return persist(
+        mapTrip(state, action.tripId, (trip) => ({
+          ...trip,
+          budget: {
+            currency: String(
+              action.currency || trip.budget?.currency || 'USD',
+            ).toUpperCase(),
+            total: Number.isFinite(total) ? Math.max(0, total) : 0,
+          },
+          updatedAt: new Date().toISOString(),
+        })),
+      )
+    }
+
     case 'deleteExpense': {
       return persist(
         mapTrip(state, action.tripId, (trip) => ({
@@ -280,6 +296,8 @@ export function TripsProvider({ children }) {
       dispatch({ type: 'addExpense', tripId, expense }),
     updateExpense: (tripId, expenseId, patch) =>
       dispatch({ type: 'updateExpense', tripId, expenseId, patch }),
+    setBudget: (tripId, { total, currency } = {}) =>
+      dispatch({ type: 'setBudget', tripId, total, currency }),
     deleteExpense: (tripId, expenseId) =>
       dispatch({ type: 'deleteExpense', tripId, expenseId }),
     previewEmpty: () => {

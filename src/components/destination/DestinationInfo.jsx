@@ -18,6 +18,9 @@ export function DestinationInfo({ destination, status }) {
     )
   }
 
+  const hasRating =
+    destination.rating != null && Number.isFinite(Number(destination.rating))
+
   return (
     <div className="flex flex-col gap-5 pb-6 lg:flex-row lg:items-center lg:justify-between">
       <div className="max-w-3xl space-y-1">
@@ -26,7 +29,7 @@ export function DestinationInfo({ destination, status }) {
             {destination.name}, {destination.country}
           </h1>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-rw-surface-muted px-2 py-1 text-[13px] font-semibold tracking-[0.26px] text-rw-ink">
-            <span aria-hidden="true">{destination.flag}</span>
+            <span aria-hidden="true">{destination.flag || '🌍'}</span>
             {destination.countryCode}
           </span>
         </div>
@@ -34,30 +37,45 @@ export function DestinationInfo({ destination, status }) {
       </div>
 
       <div className="flex flex-wrap gap-2 lg:w-[320px] lg:flex-col xl:w-[420px]">
-        <span className="inline-flex items-center gap-1 rounded-full bg-rw-surface-soft px-4 py-1 shadow-sm">
-          <IconStar className="text-rw-accent" />
-          <span className="font-display text-lg font-semibold tracking-[-0.18px] text-rw-ink">
-            {destination.rating}
+        {hasRating ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-rw-surface-soft px-4 py-1 shadow-sm">
+            <IconStar className="text-rw-accent" />
+            <span className="font-display text-lg font-semibold tracking-[-0.18px] text-rw-ink">
+              {destination.rating}
+            </span>
+            {destination.reviewCount ? (
+              <span className="text-xs tracking-[0.12px] text-rw-muted">
+                ({destination.reviewCount} reviews)
+              </span>
+            ) : null}
           </span>
-          <span className="text-xs tracking-[0.12px] text-rw-muted">
-            ({destination.reviewCount} reviews)
+        ) : null}
+        {destination.bestSeason ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rw-warm px-4 py-1 shadow-sm">
+            <IconLeafSmall className="text-rw-muted" />
+            <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">Best:</span>
+            <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-ink">
+              {destination.bestSeason}
+            </span>
           </span>
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-rw-warm px-4 py-1 shadow-sm">
-          <IconLeafSmall className="text-rw-muted" />
-          <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">Best:</span>
-          <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-ink">
-            {destination.bestSeason}
+        ) : null}
+        {destination.dailyAvg != null ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e2e7ff] px-4 py-1 shadow-sm dark:bg-rw-surface-muted">
+            <IconChart className="text-rw-muted" />
+            <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">Avg:</span>
+            <span className="font-display text-lg font-semibold tracking-[0.26px] text-rw-accent">
+              ${destination.dailyAvg}
+            </span>
+            <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">/ day</span>
           </span>
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e2e7ff] px-4 py-1 shadow-sm dark:bg-rw-surface-muted">
-          <IconChart className="text-rw-muted" />
-          <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">Avg:</span>
-          <span className="font-display text-lg font-semibold tracking-[0.26px] text-rw-accent">
-            ${destination.dailyAvg}
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#e2e7ff] px-4 py-1 shadow-sm dark:bg-rw-surface-muted">
+            <IconChart className="text-rw-muted" />
+            <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">
+              {destination.regionLabel || destination.region || 'Live destination'}
+            </span>
           </span>
-          <span className="text-[13px] font-semibold tracking-[0.26px] text-rw-muted">/ day</span>
-        </span>
+        )}
       </div>
     </div>
   )

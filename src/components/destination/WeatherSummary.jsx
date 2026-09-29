@@ -1,4 +1,5 @@
 import { cn } from '../../utils/cn.js'
+import { formatTemperature } from '../../data/preferences.js'
 import { EmptyState, ErrorState, SkeletonBlock } from '../common/StatusBlocks.jsx'
 import {
   IconCloud,
@@ -78,7 +79,10 @@ export function WeatherSummary({
                 <h2 className="font-display text-lg font-semibold tracking-[-0.18px] text-rw-ink">
                   {weather.title}
                 </h2>
-                <p className="text-xs tracking-[0.12px] text-rw-muted">{weather.summary}</p>
+                <p className="text-xs tracking-[0.12px] text-rw-muted">
+                  {formatTemperature(weather.temperatureC, temperatureUnit)}
+                  {weather.summary ? ` · ${weather.summary}` : ''}
+                </p>
               </>
             )}
           </div>

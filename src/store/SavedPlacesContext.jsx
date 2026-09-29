@@ -25,6 +25,20 @@ function toPlace(input) {
   return normalizeSavedPlace(input) || resolveSavedPlaceById(input?.id)
 }
 
+function mergePlace(existing, patch) {
+  if (!existing) return null
+  return normalizeSavedPlace({
+    ...existing,
+    ...patch,
+    id: existing.id,
+    savedAt: existing.savedAt,
+    meta: {
+      ...existing.meta,
+      ...(patch.meta || {}),
+    },
+  })
+}
+
 function reducer(state, action) {
   switch (action.type) {
     case 'toggle': {
@@ -43,6 +57,29 @@ function reducer(state, action) {
     }
     case 'remove':
       return state.filter((item) => item.id !== action.id)
+    case 'patch': {
+      const idx = state.findIndex((item) => item.id === action.id)
+      if (idx < 0) return state
+      const merged = mergePlace(state[idx], action.patch || {})
+      if (!merged) return state
+      const next = state.slice()
+      next[idx] = merged
+      return next
+    }
+    case 'patchMany': {
+      const updates = Array.isArray(action.updates) ? action.updates : []
+      if (!updates.length) return state
+      let changed = false
+      const next = state.map((item) => {
+        const hit = updates.find((u) => u.id === item.id)
+        if (!hit) return item
+        const merged = mergePlace(item, hit.patch || {})
+        if (!merged) return item
+        changed = true
+        return merged
+      })
+      return changed ? next : state
+    }
     case 'replace':
       return Array.isArray(action.places) ? action.places : state
     default:
@@ -68,6 +105,9 @@ export function SavedPlacesProvider({ children }) {
     toggleSaved: (placeOrId) => dispatch({ type: 'toggle', place: placeOrId }),
     addSaved: (placeOrId) => dispatch({ type: 'add', place: placeOrId }),
     removeSaved: (id) => dispatch({ type: 'remove', id }),
+    patchSaved: (id, patch) => dispatch({ type: 'patch', id, patch }),
+    patchSavedMany: (updates) =>
+      dispatch({ type: 'patchMany', updates }),
     replaceSaved: (places) =>
       dispatch({ type: 'replace', places: hydrateSavedPlaces(places) }),
   }
