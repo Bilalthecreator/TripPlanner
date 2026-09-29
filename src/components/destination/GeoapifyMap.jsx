@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import {
@@ -7,6 +7,7 @@ import {
   getGeoapifyTileUrlSafe,
 } from '../../services/geoapify/mapTiles.js'
 import { useTheme } from '../../store/useTheme.js'
+import { cn } from '../../utils/cn.js'
 
 const MARKER_COLORS = {
   destination: '#b90538',
@@ -39,6 +40,7 @@ export function GeoapifyMap({
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const { theme } = useTheme()
+  const [tileError, setTileError] = useState(null)
   const markersKey = JSON.stringify(
     markers.map((m) => [m.id, m.latitude, m.longitude, m.type, m.tone]),
   )
@@ -55,7 +57,14 @@ export function GeoapifyMap({
         ? GEOAPIFY_TILE_STYLES.dark
         : GEOAPIFY_TILE_STYLES.soft
     const tileUrl = getGeoapifyTileUrlSafe(style)
-    if (!tileUrl) return undefined
+    if (!tileUrl) {
+      setTileError(
+        'Add VITE_GEOAPIFY_API_KEY to your .env file, then restart the dev server.',
+      )
+      return undefined
+    }
+
+    setTileError(null)
 
     if (mapRef.current) {
       mapRef.current.remove()
@@ -141,6 +150,19 @@ export function GeoapifyMap({
     }
     // markersKey / routeKey keep array/object identity stable for the effect
   }, [latitude, longitude, markersKey, routeKey, theme, markers, routeGeometry])
+
+  if (tileError) {
+    return (
+      <div
+        className={cn(
+          'flex items-center justify-center bg-rw-surface-muted px-4 text-center text-sm text-rw-muted',
+          className,
+        )}
+      >
+        {tileError}
+      </div>
+    )
+  }
 
   return <div ref={containerRef} className={className} />
 }
